@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Presentación para principiantes sobre variables, constantes y arrays en JavaScript.">
+  <title>Variables, constantes y arrays · Clase interactiva</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#" aria-label="Inicio"><span class="brand-mark">JS</span><span>Fundamentos</span></a>
+    <div class="top-meta"><span class="live-dot"></span><span id="course-level">Nivel inicial</span></div>
+  </header>
+
+  <main class="stage">
+    <section class="presentation" aria-live="polite">
+      <div class="slide-topline">
+        <span id="eyebrow" class="eyebrow"></span>
+        <span id="counter" class="counter"></span>
+      </div>
+      <div id="slide-content" class="slide-content">
+        <div class="loading">Cargando la presentación…</div>
+      </div>
+      <div class="progress-track" aria-label="Progreso de la presentación">
+        <div id="progress" class="progress-fill"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="controls">
+    <button id="prev" class="nav-button secondary" type="button" aria-label="Diapositiva anterior">← <span>Anterior</span></button>
+    <div class="control-center">
+      <div id="dots" class="dots" aria-label="Ir a una diapositiva"></div>
+      <span class="keyboard-hint">Usa <kbd>←</kbd> <kbd>→</kbd> para navegar</span>
+    </div>
+    <button id="next" class="nav-button primary" type="button"><span>Siguiente</span> →</button>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

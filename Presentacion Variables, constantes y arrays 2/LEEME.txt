@@ -1,0 +1,24 @@
+# Presentación: Variables, constantes y arrays
+
+## Archivos
+- `index.html`: estructura de la web.
+- `styles.css`: diseño visual nocturno y adaptable a móvil.
+- `app.js`: navegación y generación de las diapositivas.
+- `slides.json`: todo el contenido textual y los ejemplos de las diapositivas.
+
+## Cómo abrirla
+Por seguridad, los navegadores suelen bloquear `fetch()` al abrir directamente un JSON con `file://`.
+Abre una terminal en esta carpeta y ejecuta:
+
+```bash
+python -m http.server 8000
+```
+
+Después visita: http://localhost:8000
+
+En Manjaro también puedes usar el mismo comando desde la terminal integrada de tu editor.
+
+## Cómo modificar el contenido
+Edita `slides.json` para cambiar títulos, explicaciones, ejemplos o preguntas.
+No necesitas modificar HTML ni JavaScript para cambiar el texto de las diapositivas.
+Mantén la estructura JSON y las comillas dobles para que el archivo siga siendo válido.

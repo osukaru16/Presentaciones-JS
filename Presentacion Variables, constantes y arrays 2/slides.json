@@ -1,0 +1,189 @@
+{
+  "course": {
+    "title": "Variables, constantes y arrays",
+    "subtitle": "Los primeros pasos para guardar y organizar información con JavaScript",
+    "level": "Nivel inicial",
+    "language": "JavaScript"
+  },
+  "slides": [
+    {
+      "type": "cover",
+      "eyebrow": "FUNDAMENTOS DE PROGRAMACIÓN",
+      "title": "Variables, constantes y arrays",
+      "subtitle": "Aprende a guardar datos y trabajar con ellos paso a paso.",
+      "chips": [
+        "Principiantes",
+        "JavaScript",
+        "Ejemplos sencillos"
+      ],
+      "note": "No necesitas experiencia previa. Empezaremos con ideas cotidianas y después veremos cómo se escriben en código."
+    },
+    {
+      "eyebrow": "01 · LA IDEA",
+      "title": "¿Por qué necesitamos guardar datos?",
+      "body": "Un programa trabaja con información: nombres, edades, precios, resultados, mensajes… Para poder utilizar esos datos, necesita guardarlos en algún lugar.",
+      "analogyTitle": "Imagina una caja con una etiqueta",
+      "analogy": "La etiqueta indica qué contiene la caja. En programación, una variable es como una caja a la que damos un nombre y en la que guardamos un dato.",
+      "code": "let nombre = \"Lucía\";",
+      "codeCaption": "Creamos un espacio llamado nombre y guardamos dentro el texto «Lucía».",
+      "takeaway": "Una variable permite guardar un dato para utilizarlo más adelante."
+    },
+    {
+      "eyebrow": "02 · VARIABLES",
+      "title": "¿Qué es una variable?",
+      "body": "Una variable es un espacio con nombre donde almacenamos un dato. Su contenido puede cambiar mientras se ejecuta el programa.",
+      "points": [
+        "Tiene un nombre que nos permite identificarla.",
+        "Guarda un valor: texto, número, verdadero o falso, entre otros.",
+        "Podemos consultar su valor y, si hace falta, cambiarlo."
+      ],
+      "code": "let puntos = 10;\npuntos = 15;\n\nconsole.log(puntos); // 15",
+      "codeCaption": "Primero guardamos 10. Después cambiamos el valor a 15.",
+      "takeaway": "Variable = dato guardado que puede cambiar."
+    },
+    {
+      "eyebrow": "03 · CONSTANTES",
+      "title": "¿Qué es una constante?",
+      "body": "Una constante también tiene un nombre y guarda un dato, pero no podemos asignarle otro valor después de crearla.",
+      "points": [
+        "Se declara con la palabra const.",
+        "Debemos darle un valor al crearla.",
+        "No podemos reasignarla más adelante."
+      ],
+      "code": "const centro = \"Aula 2\";\n\n// Esto produciría un error:\n// centro = \"Aula 3\";",
+      "codeCaption": "El valor asociado a centro no puede reasignarse.",
+      "takeaway": "Constante = nombre cuyo valor no se puede reasignar."
+    },
+    {
+      "eyebrow": "04 · COMPARACIÓN",
+      "title": "Variable o constante: ¿cuál utilizo?",
+      "body": "La pregunta clave es: ¿necesito que ese nombre pueda recibir otro valor durante el programa?",
+      "comparison": [
+        {
+          "name": "let",
+          "kind": "Variable",
+          "description": "Permite reasignar el valor.",
+          "example": "let temperatura = 20;\ntemperatura = 22;"
+        },
+        {
+          "name": "const",
+          "kind": "Constante",
+          "description": "No permite reasignar el valor.",
+          "example": "const pais = \"España\";"
+        }
+      ],
+      "takeaway": "Como regla práctica, utiliza const por defecto y let cuando necesites reasignar el valor."
+    },
+    {
+      "eyebrow": "05 · ARRAYS",
+      "title": "¿Qué es un array?",
+      "body": "Un array (o arreglo) permite guardar varios valores dentro de una sola estructura, en un orden determinado.",
+      "analogyTitle": "Imagina una fila de compartimentos",
+      "analogy": "Cada compartimento guarda un elemento. Todos forman parte de la misma colección y podemos acceder a cada uno mediante su posición.",
+      "code": "const frutas = [\"manzana\", \"pera\", \"uva\"];",
+      "codeCaption": "El array frutas contiene tres elementos.",
+      "takeaway": "Array = colección ordenada de elementos."
+    },
+    {
+      "eyebrow": "06 · POSICIONES",
+      "title": "En un array, contamos desde cero",
+      "body": "Cada elemento ocupa una posición llamada índice. En JavaScript, el primer índice es 0, no 1.",
+      "arrayItems": [
+        {
+          "index": 0,
+          "value": "manzana"
+        },
+        {
+          "index": 1,
+          "value": "pera"
+        },
+        {
+          "index": 2,
+          "value": "uva"
+        }
+      ],
+      "code": "const frutas = [\"manzana\", \"pera\", \"uva\"];\n\nconsole.log(frutas[0]); // manzana\nconsole.log(frutas[2]); // uva",
+      "codeCaption": "Escribimos el nombre del array y, entre corchetes, el índice que queremos consultar.",
+      "takeaway": "¡Recuerda! El primer elemento está en la posición 0."
+    },
+    {
+      "eyebrow": "07 · MODIFICAR ARRAYS",
+      "title": "Podemos añadir y cambiar elementos",
+      "body": "Aunque una variable declarada con const no se puede reasignar, si contiene un array sí podemos modificar sus elementos.",
+      "code": "const tareas = [\"estudiar\", \"practicar\"];\n\ntareas.push(\"descansar\");\ntareas[0] = \"leer\";\n\nconsole.log(tareas);\n// [\"leer\", \"practicar\", \"descansar\"]",
+      "codeCaption": "push() añade un elemento al final. Con un índice podemos cambiar un elemento existente.",
+      "takeaway": "const impide reasignar el array completo, pero no convierte su contenido en inmutable."
+    },
+    {
+      "eyebrow": "08 · RESUMEN",
+      "title": "Las tres ideas en una mirada",
+      "summary": [
+        {
+          "term": "Variable · let",
+          "description": "Guarda un dato que puede reasignarse.",
+          "visual": "Una caja cuyo contenido podemos cambiar."
+        },
+        {
+          "term": "Constante · const",
+          "description": "Guarda un dato que no podemos reasignar.",
+          "visual": "Una etiqueta a la que no podemos asignar otro valor."
+        },
+        {
+          "term": "Array · [ ]",
+          "description": "Agrupa varios elementos ordenados.",
+          "visual": "Una fila de compartimentos numerados desde cero."
+        }
+      ],
+      "takeaway": "Son herramientas básicas para almacenar y organizar la información de un programa."
+    },
+    {
+      "eyebrow": "09 · PRACTICA",
+      "title": "Comprueba lo que has aprendido",
+      "questions": [
+        {
+          "question": "¿Qué palabra utilizamos para declarar una variable que podremos reasignar?",
+          "options": [
+            "const",
+            "let",
+            "array"
+          ],
+          "correct": 1,
+          "explanation": "let permite declarar una variable y reasignar su valor."
+        },
+        {
+          "question": "¿Qué índice tiene el primer elemento de un array en JavaScript?",
+          "options": [
+            "0",
+            "1",
+            "-1"
+          ],
+          "correct": 0,
+          "explanation": "Los índices de los arrays de JavaScript empiezan en 0."
+        },
+        {
+          "question": "¿Qué permite hacer un array?",
+          "options": [
+            "Guardar solo números",
+            "Guardar varios elementos en una colección ordenada",
+            "Impedir que el programa cambie"
+          ],
+          "correct": 1,
+          "explanation": "Un array agrupa varios elementos y mantiene su orden."
+        }
+      ],
+      "takeaway": "Equivocarse forma parte del aprendizaje. Lee la explicación y vuelve a intentarlo."
+    },
+    {
+      "eyebrow": "10 · FIN",
+      "title": "¡Ya conoces los fundamentos!",
+      "body": "Has aprendido tres formas esenciales de trabajar con datos en JavaScript.",
+      "points": [
+        "Usa let cuando necesites reasignar un valor.",
+        "Usa const cuando no necesites reasignarlo.",
+        "Usa arrays para agrupar varios elementos."
+      ],
+      "finalMessage": "El siguiente paso es practicar: crea tus propias variables, constantes y arrays, y prueba a consultar y modificar sus valores.",
+      "takeaway": "Pequeños pasos, mucha práctica."
+    }
+  ]
+}
