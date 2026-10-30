@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Variables, constantes y arrays en JavaScript</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Lexend:wght@300;400;600&display=swap">
+<style>
+:root{
+  color-scheme: dark;
+  --bg:#12141c; --panel:#1b1f2b; --code:#0d0f16; --line:#2c3243;
+  --text:#e9e7f1; --muted:#a8adc0;
+  --var:#7db4ff; --const:#f0a6c8; --arr:#6fd9bf; --aviso:#ffcf70; --neutro:#c9c6d8;
+  --sans:"Lexend", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono:"JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*,*::before,*::after{box-sizing:inherit}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{height:100%;margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);font-size:1.125rem;line-height:1.65;display:flex;flex-direction:column}
+.progreso{height:4px;background:var(--line);flex:none}
+.progreso i{display:block;height:100%;width:0;background:var(--text);transition:width .3s}
+main{flex:1;overflow-y:auto;overflow-x:hidden;padding:clamp(1.25rem,4vw,3rem)}
+.slide{max-width:68rem;margin:0 auto;padding-left:clamp(1rem,2.5vw,1.75rem);border-left:5px solid var(--acento,var(--neutro))}
+.slide[data-acento=var]{--acento:var(--var)}
+.slide[data-acento=const]{--acento:var(--const)}
+.slide[data-acento=arr]{--acento:var(--arr)}
+.slide[data-acento=neutro]{--acento:var(--neutro)}
+.slide.entra{animation:entra .25s ease-out}
+@keyframes entra{from{opacity:0;transform:translateX(14px)}to{opacity:1;transform:none}}
+h1,h2{margin:0 0 .75rem;font-weight:600;line-height:1.2;letter-spacing:-.01em;font-size:clamp(1.75rem,4.2vw,2.9rem);color:var(--acento)}
+.portada h1{font-size:clamp(2.2rem,6.5vw,4.6rem)}
+.portada .texto{font-size:clamp(1.15rem,2.4vw,1.5rem);max-width:36rem}
+.texto{max-width:44rem;margin:0 0 1.25rem;color:var(--text)}
+code{font-family:var(--mono);font-size:.92em;background:var(--code);border:1px solid var(--line);border-radius:5px;padding:.08em .4em;color:var(--acento)}
+ul.puntos{margin:1.25rem 0 0;padding-left:1.2rem;max-width:44rem}
+ul.puntos li{margin:.45rem 0}
+ul.puntos li::marker{color:var(--acento)}
+.cuerpo{display:flex;flex-wrap:wrap;gap:1.25rem;align-items:flex-start;margin-top:.5rem}
+.bloque-codigo{flex:1 1 24rem;min-width:0;max-width:40rem}
+pre{margin:0;font-family:var(--mono);font-size:clamp(.88rem,1.9vw,1.05rem);line-height:1.6;overflow-x:auto}
+.codigo{background:var(--code);border:1px solid var(--line);border-radius:10px 10px 0 0;padding:1rem 1.25rem}
+.codigo:last-child{border-radius:10px}
+.salida{background:var(--panel);border:1px solid var(--line);border-top:0;border-radius:0 0 10px 10px;padding:.75rem 1.25rem;color:var(--muted)}
+.salida span{display:block;font-family:var(--sans);font-size:.8rem;color:var(--muted);margin-bottom:.25rem}
+.k{color:#c9a7ff}.s{color:#8fe3a8}.n{color:var(--aviso)}.c{color:#7f869b;font-style:italic}.f{color:var(--var)}
+.visual{flex:1 1 16rem;min-width:0}
+.leyenda{margin:.75rem 0 0;font-size:.95rem;color:var(--muted);max-width:30rem}
+.cajas{display:flex;flex-wrap:wrap;gap:.9rem}
+.caja{min-width:6.5rem;background:var(--panel);border:2px solid var(--neutro);border-radius:10px;padding:.5rem .9rem .8rem}
+.caja.let{border-color:var(--var);border-style:dashed}
+.caja.const{border-color:var(--const);border-style:solid;border-width:4px}
+.caja small{display:block;font-size:.8rem;color:var(--muted)}
+.caja b{display:block;font-family:var(--mono);font-size:1.5rem;font-weight:600;margin-top:.15rem}
+.caja .nom{font-family:var(--mono);font-size:.95rem;color:var(--text)}
+.indices{display:flex;flex-wrap:wrap;gap:.35rem;align-items:flex-end}
+.indices .nombre{font-family:var(--mono);font-size:1.1rem;margin-right:.5rem;align-self:center}
+.cel{text-align:center}
+.cel em{display:block;font-style:normal;font-family:var(--mono);font-size:.9rem;color:var(--arr)}
+.cel b{display:block;min-width:5.5rem;font-family:var(--mono);font-weight:400;font-size:1.05rem;padding:.7rem .6rem;background:var(--panel);border:2px solid var(--arr);border-radius:8px}
+.partes{display:flex;flex-wrap:wrap;gap:.9rem 1rem}
+.parte{text-align:center}
+.parte b{display:block;font-family:var(--mono);font-size:clamp(1.5rem,4vw,2.4rem);font-weight:600;padding:.2rem .8rem;border-bottom:3px solid var(--p)}
+.parte small{display:block;margin-top:.35rem;font-size:.85rem;color:var(--muted);max-width:7.5rem}
+.parte:nth-child(1){--p:#c9a7ff}.parte:nth-child(2){--p:var(--var)}.parte:nth-child(3){--p:var(--aviso)}.parte:nth-child(4){--p:#8fe3a8}.parte:nth-child(5){--p:var(--muted)}
+.columnas{display:grid;grid-template-columns:repeat(auto-fit,minmax(15rem,1fr));gap:1rem;margin-top:1.25rem}
+.col{background:var(--panel);border:1px solid var(--line);border-top:4px solid var(--c,var(--neutro));border-radius:10px;padding:1rem 1.25rem}
+.col[data-acento=var]{--c:var(--var)}.col[data-acento=const]{--c:var(--const)}.col[data-acento=arr]{--c:var(--arr)}.col[data-acento=aviso]{--c:var(--aviso)}
+.col h3{margin:0 0 .5rem;font-size:1.15rem;font-weight:600;color:var(--c)}
+.col ul{margin:0;padding-left:1.1rem}.col li{margin:.4rem 0}
+.col code{color:var(--c)}
+.nota{max-width:44rem;margin:1.5rem 0 0;padding:.75rem 1rem;background:var(--panel);border-left:4px solid var(--aviso);border-radius:0 8px 8px 0;color:var(--text)}
+nav{flex:none;display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.75rem clamp(1rem,4vw,3rem);border-top:1px solid var(--line);background:var(--panel)}
+nav .info{color:var(--muted);font-size:.9rem;text-align:center}
+button{font:inherit;font-size:1rem;color:var(--text);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.55rem 1.1rem;cursor:pointer}
+button:hover:not(:disabled){border-color:var(--text)}
+button:disabled{opacity:.35;cursor:default}
+button:focus-visible{outline:3px solid var(--aviso);outline-offset:2px}
+.error{max-width:40rem;margin:2rem auto;padding:1rem 1.25rem;border:2px solid var(--aviso);border-radius:10px;background:var(--panel)}
+@media (prefers-reduced-motion:reduce){.slide.entra{animation:none}.progreso i{transition:none}}
+@media (max-width:520px){body{font-size:1rem}nav .info span{display:none}}
+</style>
+</head>
+<body>
+<div class="progreso" aria-hidden="true"><i id="barra"></i></div>
+<main id="escena" tabindex="-1" aria-live="polite"></main>
+<nav>
+  <button id="ant" type="button">Anterior</button>
+  <div class="info"><span id="titulo-web"></span> <b id="contador"></b></div>
+  <button id="sig" type="button">Siguiente</button>
+</nav>
+
+<!--
+  CONTENIDO EDITABLE
+  Todo el texto de las diapositivas está en este bloque JSON.
+  Para cambiar algo, edita solo los textos entre comillas.
+  Campos de cada diapositiva (todos opcionales menos "titulo"):
+    acento: "var" (azul), "const" (rosa), "arr" (verde) o "neutro"
+    titulo, texto, codigo (usa \n para saltos de línea), salida, nota
+    puntos: lista de frases · usa `comillas inversas` para resaltar código
+    visual: {"tipo":"cajas"|"partes"|"indices", ...}
+    columnas: lista de {titulo, acento, puntos}
+-->
+<script type="application/json" id="datos">
+{
+  "meta": { "titulo": "JavaScript desde cero" },
+  "diapositivas": [
+    {
+      "portada": true,
+      "acento": "neutro",
+      "titulo": "Variables, constantes y arrays",
+      "texto": "Cómo guarda datos un programa en JavaScript. Una guía paso a paso para quien empieza desde cero.",
+      "nota": "Avanza con las flechas del teclado, deslizando o con los botones de abajo."
+    },
+    {
+      "acento": "neutro",
+      "titulo": "Un programa necesita memoria",
+      "texto": "Cuando escribes tu nombre en una web, el programa tiene que recordarlo para poder saludarte. Para eso guarda los datos en la memoria del ordenador.",
+      "puntos": [
+        "Imagina cajas con una etiqueta en la tapa.",
+        "La etiqueta es el nombre; lo que hay dentro es el valor.",
+        "Hay tres herramientas básicas: variables, constantes y arrays."
+      ],
+      "visual": {
+        "tipo": "cajas",
+        "items": [
+          { "n": "nombre", "v": "“Ana”" },
+          { "n": "edad", "v": "25" },
+          { "n": "esAdmin", "v": "false" }
+        ],
+        "leyenda": "Tres cajas: cada una tiene un nombre y un valor."
+      }
+    },
+    {
+      "acento": "var",
+      "titulo": "Variable: una caja que puedes cambiar",
+      "texto": "Una variable guarda un dato y permite sustituirlo por otro cuando haga falta. Se crea con la palabra `let`.",
+      "codigo": "let edad = 25;\nconsole.log(edad);\n\nedad = 26; // cambiamos el valor\nconsole.log(edad);",
+      "salida": "25\n26",
+      "visual": {
+        "tipo": "cajas",
+        "items": [ { "n": "edad", "v": "26", "tipo": "let" } ],
+        "leyenda": "Tras la segunda asignación, la caja contiene 26. El 25 ya no está."
+      }
+    },
+    {
+      "acento": "var",
+      "titulo": "Las partes de una variable",
+      "texto": "Cada instrucción se lee de izquierda a derecha.",
+      "visual": {
+        "tipo": "partes",
+        "items": [
+          { "t": "let", "r": "palabra clave" },
+          { "t": "edad", "r": "nombre" },
+          { "t": "=", "r": "asignar" },
+          { "t": "25", "r": "valor" },
+          { "t": ";", "r": "fin" }
+        ]
+      },
+      "puntos": [
+        "`let` avisa de que vas a crear una variable.",
+        "El nombre lo eliges tú.",
+        "`=` guarda el valor de la derecha en el nombre de la izquierda.",
+        "El `;` marca el final de la instrucción."
+      ]
+    },
+    {
+      "acento": "var",
+      "titulo": "Cómo poner buenos nombres",
+      "texto": "Usa camelCase: la primera palabra en minúscula y las siguientes con mayúscula inicial. JavaScript distingue mayúsculas: `edad` y `Edad` son nombres distintos.",
+      "columnas": [
+        { "titulo": "Nombres válidos", "acento": "arr", "puntos": [ "`edadUsuario`", "`precioTotal`", "`esMayor`" ] },
+        { "titulo": "Nombres que fallan", "acento": "aviso", "puntos": [ "`2edad` no puede empezar por número", "`precio total` no admite espacios", "`let` es una palabra reservada" ] }
+      ]
+    },
+    {
+      "acento": "const",
+      "titulo": "Constante: una caja sellada",
+      "texto": "Una constante guarda un valor que no debe cambiar. Se crea con `const`. Si intentas cambiarla, JavaScript muestra un error.",
+      "codigo": "const iva = 0.21;\nconsole.log(iva);\n\niva = 0.10; // ¡error!",
+      "salida": "0.21\nTypeError: Assignment to constant variable.",
+      "visual": {
+        "tipo": "cajas",
+        "items": [ { "n": "iva", "v": "0.21", "tipo": "const" } ],
+        "leyenda": "El borde grueso recuerda que esta caja está sellada."
+      },
+      "puntos": [
+        "Hay que darle valor en el mismo momento de crearla.",
+        "Es ideal para datos fijos: el IVA, el nombre de la web o los días de la semana."
+      ]
+    },
+    {
+      "acento": "neutro",
+      "titulo": "let o const: cuál elegir",
+      "columnas": [
+        { "titulo": "let", "acento": "var", "puntos": [ "Su valor puede cambiar.", "Úsala para contadores, puntuaciones o datos que se actualizan.", "`let puntos = 0;`" ] },
+        { "titulo": "const", "acento": "const", "puntos": [ "Su valor se queda fijo.", "Úsala para datos que no cambian.", "`const pi = 3.1416;`" ] }
+      ],
+      "nota": "Regla práctica: empieza siempre con `const`. Si más adelante necesitas cambiar el valor, pásala a `let`."
+    },
+    {
+      "acento": "arr",
+      "titulo": "Array: una fila de cajas",
+      "texto": "Un array guarda varios valores en orden. Se escribe entre corchetes y separado por comas. Cada elemento tiene una posición, llamada índice, y el primero es el 0.",
+      "codigo": "const frutas = [\"manzana\", \"pera\", \"uva\"];",
+      "visual": {
+        "tipo": "indices",
+        "nombre": "frutas",
+        "items": [ "“manzana”", "“pera”", "“uva”" ],
+        "leyenda": "Los números de arriba son los índices."
+      },
+      "nota": "Contar desde 0 sorprende al principio, pero es lo habitual en casi todos los lenguajes."
+    },
+    {
+      "acento": "arr",
+      "titulo": "Leer y cambiar un array",
+      "codigo": "const frutas = [\"manzana\", \"pera\", \"uva\"];\n\nconsole.log(frutas[0]);     // primer elemento\nconsole.log(frutas.length); // cuántos hay\n\nfrutas.push(\"kiwi\");        // añade al final\nfrutas.pop();               // quita el último",
+      "salida": "manzana\n3",
+      "puntos": [
+        "`frutas[0]` lee la posición 0.",
+        "`length` dice cuántos elementos hay.",
+        "`push` añade al final y `pop` quita el último."
+      ]
+    },
+    {
+      "acento": "arr",
+      "titulo": "Recorrer un array con for…of",
+      "texto": "Para hacer algo con cada elemento no hace falta escribirlos uno a uno: el bucle `for...of` los visita todos.",
+      "codigo": "const frutas = [\"manzana\", \"pera\", \"uva\"];\n\nfor (const fruta of frutas) {\n  console.log(\"Fruta: \" + fruta);\n}",
+      "salida": "Fruta: manzana\nFruta: pera\nFruta: uva",
+      "puntos": [ "En cada vuelta, `fruta` vale un elemento distinto del array." ]
+    },
+    {
+      "acento": "arr",
+      "titulo": "Un array con const sí se puede modificar",
+      "texto": "`const` impide cambiar la caja entera, pero no lo que hay dentro del array.",
+      "codigo": "const notas = [5, 7];\n\nnotas.push(9);  // permitido\nconsole.log(notas);\n\nnotas = [1, 2]; // error",
+      "salida": "[ 5, 7, 9 ]\nTypeError: Assignment to constant variable.",
+      "puntos": [
+        "Puedes añadir, quitar o cambiar elementos.",
+        "No puedes hacer que `notas` apunte a otro array distinto."
+      ]
+    },
+    {
+      "acento": "neutro",
+      "titulo": "Resumen",
+      "columnas": [
+        { "titulo": "Variable", "acento": "var", "puntos": [ "Se crea con `let`.", "Su valor puede cambiar.", "`let edad = 25;`" ] },
+        { "titulo": "Constante", "acento": "const", "puntos": [ "Se crea con `const`.", "Su valor es fijo.", "`const iva = 0.21;`" ] },
+        { "titulo": "Array", "acento": "arr", "puntos": [ "Varios valores entre `[ ]`.", "Cada uno tiene un índice desde 0.", "`const notas = [5, 7, 9];`" ] }
+      ],
+      "nota": "Siguiente paso: abre la consola del navegador (tecla F12) y practica cambiando estos ejemplos."
+    }
+  ]
+}
+</script>
+
+<script>
+(function(){
+  var escena = document.getElementById('escena');
+  var barra = document.getElementById('barra');
+  var contador = document.getElementById('contador');
+  var btnAnt = document.getElementById('ant');
+  var btnSig = document.getElementById('sig');
+  var datos, total, actual = 0;
+
+  function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function rico(s){ return esc(s).replace(/`([^`]+)`/g,'<code>$1</code>'); }
+  function el(tag, cls, html){
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (html != null) e.innerHTML = html;
+    return e;
+  }
+  function resaltar(codigo){
+    return esc(codigo).replace(
+      /(\/\/.*$)|("[^"\n]*")|\b(let|const|for|of)\b|\b(\d+(?:\.\d+)?)\b|\b(console|log|push|pop|length)\b/gm,
+      function(m,c,s,k,n,f){
+        if (c) return '<span class="c">'+m+'</span>';
+        if (s) return '<span class="s">'+m+'</span>';
+        if (k) return '<span class="k">'+m+'</span>';
+        if (n) return '<span class="n">'+m+'</span>';
+        return '<span class="f">'+m+'</span>';
+      });
+  }
+
+  function visual(v){
+    var cont = el('div','visual'), fila;
+    if (v.tipo === 'cajas'){
+      fila = el('div','cajas');
+      (v.items||[]).forEach(function(it){
+        var c = el('div','caja'+(it.tipo?' '+it.tipo:''));
+        c.innerHTML = (it.tipo ? '<small>'+esc(it.tipo)+'</small>' : '') +
+          '<span class="nom">'+esc(it.n)+'</span><b>'+esc(it.v)+'</b>';
+        fila.appendChild(c);
+      });
+    } else if (v.tipo === 'partes'){
+      fila = el('div','partes');
+      (v.items||[]).forEach(function(it){
+        fila.appendChild(el('div','parte','<b>'+esc(it.t)+'</b><small>'+esc(it.r)+'</small>'));
+      });
+    } else if (v.tipo === 'indices'){
+      fila = el('div','indices');
+      fila.appendChild(el('span','nombre',esc(v.nombre||'')+' ='));
+      (v.items||[]).forEach(function(val,i){
+        fila.appendChild(el('div','cel','<em>'+i+'</em><b>'+esc(val)+'</b>'));
+      });
+    }
+    if (fila) cont.appendChild(fila);
+    if (v.leyenda) cont.appendChild(el('p','leyenda',rico(v.leyenda)));
+    return cont;
+  }
+
+  function dibujar(animar){
+    var s = datos.diapositivas[actual];
+    var sec = el('article','slide'+(s.portada?' portada':'')+(animar?' entra':''));
+    sec.dataset.acento = s.acento || 'neutro';
+    sec.appendChild(el(s.portada ? 'h1' : 'h2', null, rico(s.titulo || '')));
+    if (s.texto) sec.appendChild(el('p','texto',rico(s.texto)));
+
+    if (s.codigo || s.visual){
+      var cuerpo = el('div','cuerpo');
+      if (s.codigo){
+        var bloque = el('div','bloque-codigo');
+        bloque.appendChild(el('pre','codigo','<code style="all:unset">'+resaltar(s.codigo)+'</code>'));
+        if (s.salida){
+          bloque.appendChild(el('pre','salida','<span>Resultado en la consola</span>'+esc(s.salida)));
+        }
+        cuerpo.appendChild(bloque);
+      }
+      if (s.visual) cuerpo.appendChild(visual(s.visual));
+      sec.appendChild(cuerpo);
+    }
+    if (s.puntos && s.puntos.length){
+      var ul = el('ul','puntos');
+      s.puntos.forEach(function(p){ ul.appendChild(el('li',null,rico(p))); });
+      sec.appendChild(ul);
+    }
+    if (s.columnas && s.columnas.length){
+      var g = el('div','columnas');
+      s.columnas.forEach(function(c){
+        var d = el('div','col'); d.dataset.acento = c.acento || 'neutro';
+        d.appendChild(el('h3',null,rico(c.titulo||'')));
+        var l = el('ul');
+        (c.puntos||[]).forEach(function(p){ l.appendChild(el('li',null,rico(p))); });
+        d.appendChild(l); g.appendChild(d);
+      });
+      sec.appendChild(g);
+    }
+    if (s.nota) sec.appendChild(el('p','nota',rico(s.nota)));
+
+    escena.innerHTML = '';
+    escena.appendChild(sec);
+    escena.scrollTop = 0;
+    contador.textContent = (actual+1) + ' / ' + total;
+    barra.style.width = ((actual+1)/total*100) + '%';
+    btnAnt.disabled = actual === 0;
+    btnSig.disabled = actual === total-1;
+  }
+
+  function ir(n, animar){
+    n = Math.max(0, Math.min(total-1, n));
+    if (n === actual && animar !== 'forzar') return;
+    actual = n;
+    dibujar(animar !== false);
+    try { history.replaceState(null,'','#d'+(actual+1)); } catch(e){}
+  }
+
+  function desdeHash(){
+    var m = /^#d(\d+)$/.exec(location.hash);
+    return m ? parseInt(m[1],10)-1 : 0;
+  }
+
+  try {
+    datos = JSON.parse(document.getElementById('datos').textContent);
+    total = datos.diapositivas.length;
+    if (!total) throw new Error('La lista "diapositivas" está vacía.');
+    document.getElementById('titulo-web').textContent = (datos.meta && datos.meta.titulo) || '';
+  } catch(err){
+    escena.innerHTML = '';
+    escena.appendChild(el('div','error','<b>No se pudo leer el JSON.</b><br>Revisa comas, comillas y llaves en el bloque de datos.<br><code>'+esc(err.message)+'</code>'));
+    btnAnt.disabled = btnSig.disabled = true;
+    return;
+  }
+
+  btnAnt.addEventListener('click', function(){ ir(actual-1); });
+  btnSig.addEventListener('click', function(){ ir(actual+1); });
+  document.addEventListener('keydown', function(e){
+    if (e.altKey || e.ctrlKey || e.metaKey) return;
+    var k = e.key;
+    if (k==='ArrowRight' || k==='PageDown' || k===' '){ e.preventDefault(); ir(actual+1); }
+    else if (k==='ArrowLeft' || k==='PageUp'){ e.preventDefault(); ir(actual-1); }
+    else if (k==='Home'){ ir(0); }
+    else if (k==='End'){ ir(total-1); }
+  });
+  var x0 = null;
+  document.addEventListener('touchstart', function(e){ x0 = e.touches[0].clientX; }, {passive:true});
+  document.addEventListener('touchend', function(e){
+    if (x0 === null) return;
+    var dx = e.changedTouches[0].clientX - x0; x0 = null;
+    if (Math.abs(dx) > 60) ir(actual + (dx < 0 ? 1 : -1));
+  }, {passive:true});
+  window.addEventListener('hashchange', function(){ ir(desdeHash()); });
+
+  actual = Math.max(0, Math.min(total-1, desdeHash()));
+  dibujar(false);
+})();
+</script>
+</body>
+</html>
