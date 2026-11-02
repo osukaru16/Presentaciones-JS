@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Variables, constantes y arrays en cuatro lenguajes</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Lexend:wght@300;400;600&display=swap">
+<style>
+:root{
+  color-scheme: dark;
+  --bg:#12141c; --panel:#1b1f2b; --code:#0d0f16; --line:#2c3243;
+  --text:#e9e7f1; --muted:#a8adc0;
+  --var:#7db4ff; --const:#f0a6c8; --arr:#6fd9bf; --aviso:#ffcf70; --neutro:#c9c6d8;
+  --sans:"Lexend", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono:"JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*,*::before,*::after{box-sizing:inherit}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{height:100%;margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);font-size:1.125rem;line-height:1.65;display:flex;flex-direction:column}
+.progreso{height:4px;background:var(--line);flex:none}
+.progreso i{display:block;height:100%;width:0;background:var(--text);transition:width .3s}
+main{flex:1;overflow-y:auto;overflow-x:hidden;padding:clamp(1.25rem,4vw,3rem)}
+.slide{max-width:68rem;margin:0 auto;padding-left:clamp(1rem,2.5vw,1.75rem);border-left:5px solid var(--acento,var(--neutro))}
+.slide[data-acento=var]{--acento:var(--var)}
+.slide[data-acento=const]{--acento:var(--const)}
+.slide[data-acento=arr]{--acento:var(--arr)}
+.slide[data-acento=neutro]{--acento:var(--neutro)}
+.slide.entra{animation:entra .25s ease-out}
+@keyframes entra{from{opacity:0;transform:translateX(14px)}to{opacity:1;transform:none}}
+h1,h2{margin:0 0 .75rem;font-weight:600;line-height:1.2;letter-spacing:-.01em;font-size:clamp(1.75rem,4.2vw,2.9rem);color:var(--acento)}
+.portada h1{font-size:clamp(2.2rem,6.5vw,4.6rem)}
+.portada .texto{font-size:clamp(1.15rem,2.4vw,1.5rem);max-width:36rem}
+.texto{max-width:44rem;margin:0 0 1.25rem}
+code{font-family:var(--mono);font-size:.92em;background:var(--code);border:1px solid var(--line);border-radius:5px;padding:.08em .4em;color:var(--acento)}
+ul.puntos{margin:1.25rem 0 0;padding-left:1.2rem;max-width:44rem}
+ul.puntos li{margin:.45rem 0}
+ul.puntos li::marker{color:var(--acento)}
+.cuerpo{display:flex;flex-wrap:wrap;gap:1.25rem;align-items:flex-start;margin-top:.5rem}
+.bloque-codigo{flex:1 1 24rem;min-width:0;max-width:40rem}
+.bloque-codigo.ancho{flex-basis:100%;max-width:none}
+pre{margin:0;font-family:var(--mono);font-size:clamp(.85rem,1.9vw,1.02rem);line-height:1.6;overflow-x:auto}
+.codigo{background:var(--code);border:1px solid var(--line);border-radius:10px 10px 0 0;padding:1rem 1.25rem}
+.codigo:last-child{border-radius:10px}
+.tabs + .codigo{border-top-left-radius:0}
+.salida{background:var(--panel);border:1px solid var(--line);border-top:0;border-radius:0 0 10px 10px;padding:.75rem 1.25rem;color:var(--muted)}
+.salida span{display:block;font-family:var(--sans);font-size:.8rem;margin-bottom:.25rem}
+.tabs{display:flex;flex-wrap:wrap;gap:.25rem;margin-bottom:-1px;position:relative}
+.tab{border-radius:8px 8px 0 0;border:1px solid var(--line);padding:.4rem .9rem;font-size:.9rem;background:var(--bg);color:var(--muted)}
+.tab.on{background:var(--code);color:var(--acento);border-bottom-color:var(--code)}
+.grid4{display:grid;grid-template-columns:repeat(auto-fit,minmax(17rem,1fr));gap:1rem}
+.mini h3{margin:0 0 .35rem;font-size:1rem;font-weight:600;color:var(--acento)}
+.mini .codigo{border-radius:10px}
+.k{color:#c9a7ff}.s{color:#8fe3a8}.n{color:var(--aviso)}.c{color:#7f869b;font-style:italic}.f{color:var(--var)}.v{color:#ffb38a}
+.visual{flex:1 1 16rem;min-width:0}
+.leyenda{margin:.75rem 0 0;font-size:.95rem;color:var(--muted);max-width:30rem}
+.cajas{display:flex;flex-wrap:wrap;gap:.9rem}
+.caja{min-width:6.5rem;background:var(--panel);border:2px solid var(--neutro);border-radius:10px;padding:.5rem .9rem .8rem}
+.caja.variable{border-color:var(--var);border-style:dashed}
+.caja.constante{border-color:var(--const);border-width:4px}
+.caja small{display:block;font-size:.8rem;color:var(--muted)}
+.caja b{display:block;font-family:var(--mono);font-size:1.5rem;font-weight:600;margin-top:.15rem}
+.caja .nom{font-family:var(--mono);font-size:.95rem}
+.indices{display:flex;flex-wrap:wrap;gap:.35rem;align-items:flex-end}
+.indices .nombre{font-family:var(--mono);font-size:1.1rem;margin-right:.5rem;align-self:center}
+.cel{text-align:center}
+.cel em{display:block;font-style:normal;font-family:var(--mono);font-size:.9rem;color:var(--arr)}
+.cel b{display:block;min-width:5.5rem;font-family:var(--mono);font-weight:400;font-size:1.05rem;padding:.7rem .6rem;background:var(--panel);border:2px solid var(--arr);border-radius:8px}
+.partes{display:flex;flex-wrap:wrap;gap:.9rem 1rem}
+.parte{text-align:center}
+.parte b{display:block;font-family:var(--mono);font-size:clamp(1.5rem,4vw,2.4rem);font-weight:600;padding:.2rem .8rem;border-bottom:3px solid var(--p)}
+.parte small{display:block;margin-top:.35rem;font-size:.85rem;color:var(--muted);max-width:7.5rem}
+.parte:nth-child(1){--p:#c9a7ff}.parte:nth-child(2){--p:var(--var)}.parte:nth-child(3){--p:var(--aviso)}.parte:nth-child(4){--p:#8fe3a8}.parte:nth-child(5){--p:var(--muted)}
+.columnas{display:grid;grid-template-columns:repeat(auto-fit,minmax(14rem,1fr));gap:1rem;margin-top:1.25rem}
+.col{background:var(--panel);border:1px solid var(--line);border-top:4px solid var(--c,var(--neutro));border-radius:10px;padding:1rem 1.25rem}
+.col[data-acento=var]{--c:var(--var)}.col[data-acento=const]{--c:var(--const)}.col[data-acento=arr]{--c:var(--arr)}.col[data-acento=aviso]{--c:var(--aviso)}
+.col h3{margin:0 0 .5rem;font-size:1.15rem;font-weight:600;color:var(--c)}
+.col ul{margin:0;padding-left:1.1rem}.col li{margin:.4rem 0}
+.col code{color:var(--c)}
+.nota{max-width:44rem;margin:1.25rem 0 0;padding:.75rem 1rem;background:var(--panel);border-left:4px solid var(--aviso);border-radius:0 8px 8px 0}
+nav{flex:none;display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.75rem clamp(1rem,4vw,3rem);border-top:1px solid var(--line);background:var(--panel)}
+nav .info{color:var(--muted);font-size:.9rem;text-align:center}
+button{font:inherit;font-size:1rem;color:var(--text);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.55rem 1.1rem;cursor:pointer}
+button:hover:not(:disabled){border-color:var(--text)}
+button:disabled{opacity:.35;cursor:default}
+button:focus-visible{outline:3px solid var(--aviso);outline-offset:2px}
+.tab{padding:.4rem .9rem;font-size:.9rem}
+.error{max-width:40rem;margin:2rem auto;padding:1rem 1.25rem;border:2px solid var(--aviso);border-radius:10px;background:var(--panel)}
+@media (prefers-reduced-motion:reduce){.slide.entra{animation:none}.progreso i{transition:none}}
+@media (max-width:520px){body{font-size:1rem}nav .info span{display:none}}
+</style>
+</head>
+<body>
+<div class="progreso" aria-hidden="true"><i id="barra"></i></div>
+<main id="escena" tabindex="-1" aria-live="polite"></main>
+<nav>
+  <button id="ant" type="button">Anterior</button>
+  <div class="info"><span id="titulo-web"></span> <b id="contador"></b></div>
+  <button id="sig" type="button">Siguiente</button>
+</nav>
+
+<!--
+  CONTENIDO EDITABLE
+  Todo el texto de las diapositivas está en este bloque JSON.
+  Edita solo los textos entre comillas. Campos de cada diapositiva (todos opcionales menos "titulo"):
+    acento: "var" (azul), "const" (rosa), "arr" (verde) o "neutro"
+    titulo, texto, nota
+    puntos: lista de frases · usa `comillas inversas` para resaltar código
+    codigo: un texto, o un objeto con un código por lenguaje:
+            {"javascript":"...","python":"...","php":"...","java":"..."}  (usa \n para los saltos de línea y \" para comillas)
+    modo: "todos" muestra todos los lenguajes a la vez en lugar de pestañas
+    salida: un texto, o un objeto con una salida por lenguaje
+    consejo: objeto con una frase por lenguaje, que cambia al elegir pestaña
+    visual: {"tipo":"cajas"|"partes"|"indices", ...}
+    columnas: lista de {titulo, acento, puntos}
+  Lenguajes admitidos para colorear el código: javascript, python, php, java
+-->
+<script type="application/json" id="datos">
+{
+  "meta": { "titulo": "Cuatro lenguajes" },
+  "lenguajes": { "javascript": "JavaScript", "python": "Python", "php": "PHP", "java": "Java" },
+  "diapositivas": [
+    {
+      "portada": true,
+      "acento": "neutro",
+      "titulo": "Variables, constantes y arrays",
+      "texto": "Las mismas ideas explicadas en JavaScript, Python, PHP y Java, para que veas qué cambia de un lenguaje a otro y qué se queda igual.",
+      "nota": "Avanza con las flechas del teclado, deslizando o con los botones de abajo. Cuando veas pestañas, elige el lenguaje que quieras: se mantiene en todas las diapositivas."
+    },
+    {
+      "acento": "neutro",
+      "titulo": "Un programa necesita memoria",
+      "texto": "Cuando escribes tu nombre en una web, el programa tiene que recordarlo para poder saludarte. Para eso guarda los datos en la memoria del ordenador.",
+      "puntos": [
+        "Imagina cajas con una etiqueta en la tapa.",
+        "La etiqueta es el nombre; lo que hay dentro es el valor.",
+        "Esta idea es igual en todos los lenguajes. Lo que cambia es cómo se escribe."
+      ],
+      "visual": {
+        "tipo": "cajas",
+        "items": [
+          { "n": "nombre", "v": "“Ana”" },
+          { "n": "edad", "v": "25" },
+          { "n": "esAdmin", "v": "true" }
+        ]
+      }
+    },
+    {
+      "acento": "neutro",
+      "titulo": "Los cuatro lenguajes",
+      "texto": "Todos sirven para programar, pero cada uno tiene su carácter.",
+      "columnas": [
+        { "titulo": "JavaScript", "acento": "aviso", "puntos": [ "El lenguaje de las páginas web.", "El tipo del dato se decide solo.", "Funciona en el navegador y en servidores." ] },
+        { "titulo": "Python", "acento": "arr", "puntos": [ "Muy legible, parecido al inglés.", "No usa `;` ni llaves.", "Muy usado en datos e inteligencia artificial." ] },
+        { "titulo": "PHP", "acento": "const", "puntos": [ "Pensado para el servidor de una web.", "Las variables empiezan por `$`.", "Mueve gran parte de internet." ] },
+        { "titulo": "Java", "acento": "var", "puntos": [ "Muy usado en empresas y apps Android.", "Hay que indicar el tipo de cada dato.", "Es más estricto, pero detecta errores antes." ] }
+      ]
+    },
+    {
+      "acento": "var",
+      "titulo": "Variable: una caja que puedes cambiar",
+      "texto": "Una variable guarda un dato y permite sustituirlo por otro cuando haga falta. Mira cómo se crea y se cambia en cada lenguaje.",
+      "codigo": {
+        "javascript": "let edad = 25;\nconsole.log(edad);\n\nedad = 26; // cambiamos el valor\nconsole.log(edad);",
+        "python": "edad = 25\nprint(edad)\n\nedad = 26  # cambiamos el valor\nprint(edad)",
+        "php": "$edad = 25;\necho $edad . \"\\n\";\n\n$edad = 26; // cambiamos el valor\necho $edad;",
+        "java": "int edad = 25;\nSystem.out.println(edad);\n\nedad = 26; // cambiamos el valor\nSystem.out.println(edad);"
+      },
+      "salida": "25\n26",
+      "consejo": {
+        "javascript": "En JavaScript se crea con `let`.",
+        "python": "En Python no hace falta ninguna palabra clave: basta con escribir `edad = 25`.",
+        "php": "En PHP el nombre de la variable siempre empieza por `$`.",
+        "java": "En Java debes indicar el tipo del dato: `int` guarda números enteros."
+      },
+      "visual": {
+        "tipo": "cajas",
+        "items": [ { "n": "edad", "v": "26", "tipo": "variable" } ],
+        "leyenda": "Tras el segundo paso, la caja contiene 26. El 25 ya no está."
+      }
+    },
+    {
+      "acento": "var",
+      "titulo": "¿Se puede cambiar el tipo de dato?",
+      "texto": "JavaScript, Python y PHP deciden el tipo según el valor y dejan cambiarlo (tipado dinámico). Java fija el tipo al crear la variable (tipado estático).",
+      "codigo": {
+        "javascript": "let dato = 5;\ndato = \"cinco\"; // válido",
+        "python": "dato = 5\ndato = \"cinco\"  # válido",
+        "php": "$dato = 5;\n$dato = \"cinco\"; // válido",
+        "java": "int dato = 5;\ndato = \"cinco\"; // ¡error!"
+      },
+      "salida": {
+        "javascript": "(sin errores)",
+        "python": "(sin errores)",
+        "php": "(sin errores)",
+        "java": "error: incompatible types: String cannot be converted to int"
+      },
+      "nota": "Más libertad es más cómodo; más estricto es más seguro. Ninguna opción es mejor en todo."
+    },
+    {
+      "acento": "var",
+      "titulo": "Cómo nombrar las variables",
+      "texto": "Cada comunidad tiene su costumbre. En todos los lenguajes: no empieces por un número y no uses espacios.",
+      "columnas": [
+        { "titulo": "JavaScript", "acento": "aviso", "puntos": [ "`edadUsuario`", "Estilo camelCase" ] },
+        { "titulo": "Python", "acento": "arr", "puntos": [ "`edad_usuario`", "Estilo snake_case, con guion bajo" ] },
+        { "titulo": "PHP", "acento": "const", "puntos": [ "`$edadUsuario`", "Empieza por `$`, luego camelCase" ] },
+        { "titulo": "Java", "acento": "var", "puntos": [ "`edadUsuario`", "Estilo camelCase" ] }
+      ],
+      "nota": "Los lenguajes distinguen mayúsculas: `edad` y `Edad` son nombres distintos."
+    },
+    {
+      "acento": "const",
+      "titulo": "Constante: una caja sellada",
+      "texto": "Una constante guarda un valor que no debe cambiar. Cada lenguaje la protege a su manera.",
+      "codigo": {
+        "javascript": "const iva = 0.21;\nconsole.log(iva);\n\niva = 0.10; // ¡error!",
+        "python": "IVA = 0.21\nprint(IVA)\n\nIVA = 0.10  # se puede, pero no se debe",
+        "php": "const IVA = 0.21;\necho IVA . \"\\n\";\n\ndefine(\"PAIS\", \"España\");\necho PAIS;",
+        "java": "final double IVA = 0.21;\nSystem.out.println(IVA);\n\nIVA = 0.10; // ¡error!"
+      },
+      "salida": {
+        "javascript": "0.21\nTypeError: Assignment to constant variable.",
+        "python": "0.21",
+        "php": "0.21\nEspaña",
+        "java": "error: cannot assign a value to final variable IVA"
+      },
+      "consejo": {
+        "javascript": "`const` impide volver a asignar la constante.",
+        "python": "Python no tiene constantes reales. Se escriben en MAYÚSCULAS para avisar de que no deben cambiar.",
+        "php": "En PHP se usa `const` o `define()`, y el nombre se escribe sin `$`.",
+        "java": "En Java se usa `final`: el compilador no deja cambiar el valor."
+      },
+      "visual": {
+        "tipo": "cajas",
+        "items": [ { "n": "IVA", "v": "0.21", "tipo": "constante" } ],
+        "leyenda": "El borde grueso recuerda que esta caja está sellada."
+      }
+    },
+    {
+      "acento": "arr",
+      "titulo": "Array: una fila de cajas",
+      "texto": "Un array guarda varios valores en orden. Cada elemento tiene una posición, llamada índice, y el primero es siempre el 0.",
+      "codigo": {
+        "javascript": "const frutas = [\"manzana\", \"pera\", \"uva\"];\nconsole.log(frutas[0]);",
+        "python": "frutas = [\"manzana\", \"pera\", \"uva\"]\nprint(frutas[0])",
+        "php": "$frutas = [\"manzana\", \"pera\", \"uva\"];\necho $frutas[0];",
+        "java": "String[] frutas = {\"manzana\", \"pera\", \"uva\"};\nSystem.out.println(frutas[0]);"
+      },
+      "salida": "manzana",
+      "consejo": {
+        "javascript": "En JavaScript se llama array y se escribe entre corchetes.",
+        "python": "Python lo llama lista y también usa corchetes.",
+        "php": "PHP usa corchetes (o `array()`) y el nombre lleva `$`.",
+        "java": "Un array de Java tiene tamaño fijo y todos sus elementos son del mismo tipo."
+      },
+      "visual": {
+        "tipo": "indices",
+        "nombre": "frutas",
+        "items": [ "“manzana”", "“pera”", "“uva”" ],
+        "leyenda": "Los números de arriba son los índices."
+      }
+    },
+    {
+      "acento": "arr",
+      "titulo": "Añadir y quitar elementos",
+      "texto": "Los nombres de las operaciones cambian, pero la idea es la misma: añadir al final, quitar el último y contar cuántos hay.",
+      "codigo": {
+        "javascript": "const frutas = [\"manzana\", \"pera\"];\nfrutas.push(\"uva\");\nconsole.log(frutas.length);\nfrutas.pop();\nconsole.log(frutas.length);",
+        "python": "frutas = [\"manzana\", \"pera\"]\nfrutas.append(\"uva\")\nprint(len(frutas))\nfrutas.pop()\nprint(len(frutas))",
+        "php": "$frutas = [\"manzana\", \"pera\"];\narray_push($frutas, \"uva\");\necho count($frutas) . \"\\n\";\narray_pop($frutas);\necho count($frutas);",
+        "java": "ArrayList<String> frutas = new ArrayList<>();\nfrutas.add(\"manzana\");\nfrutas.add(\"pera\");\nfrutas.add(\"uva\");\nSystem.out.println(frutas.size());\nfrutas.remove(frutas.size() - 1);\nSystem.out.println(frutas.size());"
+      },
+      "salida": "3\n2",
+      "consejo": {
+        "javascript": "`push` añade al final, `pop` quita el último y `length` cuenta.",
+        "python": "`append` añade al final, `pop` quita el último y `len()` cuenta.",
+        "php": "`array_push` añade, `array_pop` quita y `count()` cuenta.",
+        "java": "Para poder crecer, Java usa `ArrayList` en lugar de un array de tamaño fijo."
+      }
+    },
+    {
+      "acento": "arr",
+      "titulo": "Recorrer un array",
+      "texto": "Para hacer algo con cada elemento no hace falta escribirlos uno a uno: un bucle los visita todos.",
+      "codigo": {
+        "javascript": "const frutas = [\"manzana\", \"pera\", \"uva\"];\n\nfor (const fruta of frutas) {\n  console.log(fruta);\n}",
+        "python": "frutas = [\"manzana\", \"pera\", \"uva\"]\n\nfor fruta in frutas:\n    print(fruta)",
+        "php": "$frutas = [\"manzana\", \"pera\", \"uva\"];\n\nforeach ($frutas as $fruta) {\n    echo $fruta . \"\\n\";\n}",
+        "java": "String[] frutas = {\"manzana\", \"pera\", \"uva\"};\n\nfor (String fruta : frutas) {\n    System.out.println(fruta);\n}"
+      },
+      "salida": "manzana\npera\nuva",
+      "consejo": {
+        "javascript": "`for...of` entrega un elemento en cada vuelta.",
+        "python": "`for ... in` es el bucle más corto de los cuatro. Fíjate en los `:` y en la sangría.",
+        "php": "`foreach` significa “para cada”: `$fruta` toma un elemento en cada vuelta.",
+        "java": "Este `for` mejorado se lee: para cada `String fruta` dentro de `frutas`."
+      }
+    },
+    {
+      "acento": "neutro",
+      "titulo": "Resumen: tres ideas, cuatro lenguajes",
+      "texto": "Variable, constante y array en una sola mirada.",
+      "modo": "todos",
+      "codigo": {
+        "javascript": "let edad = 25;\nconst IVA = 0.21;\nconst notas = [5, 7, 9];",
+        "python": "edad = 25\nIVA = 0.21  # convención\nnotas = [5, 7, 9]",
+        "php": "$edad = 25;\nconst IVA = 0.21;\n$notas = [5, 7, 9];",
+        "java": "int edad = 25;\nfinal double IVA = 0.21;\nint[] notas = {5, 7, 9};"
+      },
+      "nota": "Siguiente paso: elige un lenguaje, abre su editor o consola en línea y cambia estos ejemplos para ver qué ocurre."
+    }
+  ]
+}
+</script>
+
+<script>
+(function(){
+  var escena = document.getElementById('escena');
+  var barra = document.getElementById('barra');
+  var contador = document.getElementById('contador');
+  var btnAnt = document.getElementById('ant');
+  var btnSig = document.getElementById('sig');
+  var datos, total, actual = 0, lang = 'javascript';
+
+  var KW = { javascript:'let|const|for|of', python:'for|in|True|False|None', php:'const|foreach|as|echo|define', java:'int|double|final|String|for|new|ArrayList' };
+  var BI = { javascript:'console|log|push|pop|length', python:'print|len|append|pop', php:'array_push|array_pop|count', java:'System|out|println|size|add|remove' };
+  var COM = { python:'#', php:'(?:\\/\\/|#)', javascript:'\\/\\/', java:'\\/\\/' };
+
+  function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function rico(s){ return esc(s).replace(/`([^`]+)`/g,'<code>$1</code>'); }
+  function el(tag, cls, html){
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (html != null) e.innerHTML = html;
+    return e;
+  }
+  function nombreLang(l){ return (datos.lenguajes && datos.lenguajes[l]) || l; }
+
+  function resaltar(codigo, l){
+    if (!KW[l]) return esc(codigo);
+    var re = new RegExp('(' + COM[l] + '.*$)|("[^"\\n]*")|(' + (l === 'php' ? '\\$\\w+' : '(?!)') + ')|\\b(' + KW[l] + ')\\b|\\b(\\d+(?:\\.\\d+)?)\\b|\\b(' + BI[l] + ')\\b', 'gm');
+    return esc(codigo).replace(re, function(m,c,s,v,k,n,f){
+      var t = c?'c' : s?'s' : v?'v' : k?'k' : n?'n' : 'f';
+      return '<span class="'+t+'">'+m+'</span>';
+    });
+  }
+
+  function visual(v){
+    var cont = el('div','visual'), fila;
+    if (v.tipo === 'cajas'){
+      fila = el('div','cajas');
+      (v.items||[]).forEach(function(it){
+        var c = el('div','caja'+(it.tipo?' '+it.tipo:''));
+        c.innerHTML = (it.tipo ? '<small>'+esc(it.tipo)+'</small>' : '') + '<span class="nom">'+esc(it.n)+'</span><b>'+esc(it.v)+'</b>';
+        fila.appendChild(c);
+      });
+    } else if (v.tipo === 'partes'){
+      fila = el('div','partes');
+      (v.items||[]).forEach(function(it){ fila.appendChild(el('div','parte','<b>'+esc(it.t)+'</b><small>'+esc(it.r)+'</small>')); });
+    } else if (v.tipo === 'indices'){
+      fila = el('div','indices');
+      fila.appendChild(el('span','nombre',esc(v.nombre||'')+' ='));
+      (v.items||[]).forEach(function(val,i){ fila.appendChild(el('div','cel','<em>'+i+'</em><b>'+esc(val)+'</b>')); });
+    }
+    if (fila) cont.appendChild(fila);
+    if (v.leyenda) cont.appendChild(el('p','leyenda',rico(v.leyenda)));
+    return cont;
+  }
+
+  function porLang(x, l){ return (x && typeof x === 'object') ? x[l] : x; }
+
+  function bloqueCodigo(s){
+    var cod = s.codigo, b = el('div','bloque-codigo');
+    if (typeof cod === 'string'){
+      b.appendChild(el('pre','codigo','<code style="all:unset">'+resaltar(cod,'javascript')+'</code>'));
+      if (s.salida) b.appendChild(el('pre','salida','<span>Resultado en la consola</span>'+esc(porLang(s.salida,'javascript'))));
+      return b;
+    }
+    var langs = Object.keys(cod);
+    if (s.modo === 'todos'){
+      b.classList.add('ancho');
+      var g = el('div','grid4');
+      langs.forEach(function(l){
+        g.appendChild(el('div','mini','<h3>'+esc(nombreLang(l))+'</h3><pre class="codigo"><code style="all:unset">'+resaltar(cod[l],l)+'</code></pre>'));
+      });
+      b.appendChild(g);
+      return b;
+    }
+    var sel = langs.indexOf(lang) >= 0 ? lang : langs[0];
+    var tabs = el('div','tabs'); tabs.setAttribute('role','tablist');
+    langs.forEach(function(l){
+      var t = el('button','tab'+(l===sel?' on':''), esc(nombreLang(l)));
+      t.type = 'button'; t.setAttribute('role','tab'); t.setAttribute('aria-selected', l===sel);
+      t.addEventListener('click', function(){ lang = l; dibujar(false); });
+      tabs.appendChild(t);
+    });
+    b.appendChild(tabs);
+    b.appendChild(el('pre','codigo','<code style="all:unset">'+resaltar(cod[sel],sel)+'</code>'));
+    var sal = porLang(s.salida, sel);
+    if (sal) b.appendChild(el('pre','salida','<span>Resultado en la consola</span>'+esc(sal)));
+    return b;
+  }
+
+  function dibujar(animar){
+    var s = datos.diapositivas[actual];
+    var sec = el('article','slide'+(s.portada?' portada':'')+(animar?' entra':''));
+    sec.dataset.acento = s.acento || 'neutro';
+    sec.appendChild(el(s.portada ? 'h1' : 'h2', null, rico(s.titulo || '')));
+    if (s.texto) sec.appendChild(el('p','texto',rico(s.texto)));
+
+    if (s.codigo || s.visual){
+      var cuerpo = el('div','cuerpo');
+      if (s.codigo) cuerpo.appendChild(bloqueCodigo(s));
+      if (s.visual) cuerpo.appendChild(visual(s.visual));
+      sec.appendChild(cuerpo);
+    }
+    if (s.consejo){
+      var langsC = s.codigo && typeof s.codigo === 'object' ? Object.keys(s.codigo) : [];
+      var selC = langsC.indexOf(lang) >= 0 ? lang : langsC[0];
+      if (s.consejo[selC]) sec.appendChild(el('p','nota',rico(s.consejo[selC])));
+    }
+    if (s.puntos && s.puntos.length){
+      var ul = el('ul','puntos');
+      s.puntos.forEach(function(p){ ul.appendChild(el('li',null,rico(p))); });
+      sec.appendChild(ul);
+    }
+    if (s.columnas && s.columnas.length){
+      var g = el('div','columnas');
+      s.columnas.forEach(function(c){
+        var d = el('div','col'); d.dataset.acento = c.acento || 'neutro';
+        d.appendChild(el('h3',null,rico(c.titulo||'')));
+        var l = el('ul');
+        (c.puntos||[]).forEach(function(p){ l.appendChild(el('li',null,rico(p))); });
+        d.appendChild(l); g.appendChild(d);
+      });
+      sec.appendChild(g);
+    }
+    if (s.nota) sec.appendChild(el('p','nota',rico(s.nota)));
+
+    var y = escena.scrollTop;
+    escena.innerHTML = '';
+    escena.appendChild(sec);
+    escena.scrollTop = animar ? 0 : y;
+    contador.textContent = (actual+1) + ' / ' + total;
+    barra.style.width = ((actual+1)/total*100) + '%';
+    btnAnt.disabled = actual === 0;
+    btnSig.disabled = actual === total-1;
+  }
+
+  function ir(n){
+    n = Math.max(0, Math.min(total-1, n));
+    if (n === actual) return;
+    actual = n;
+    dibujar(true);
+    try { history.replaceState(null,'','#d'+(actual+1)); } catch(e){}
+  }
+  function desdeHash(){ var m = /^#d(\d+)$/.exec(location.hash); return m ? parseInt(m[1],10)-1 : 0; }
+
+  try {
+    datos = JSON.parse(document.getElementById('datos').textContent);
+    total = datos.diapositivas.length;
+    if (!total) throw new Error('La lista "diapositivas" está vacía.');
+    document.getElementById('titulo-web').textContent = (datos.meta && datos.meta.titulo) || '';
+  } catch(err){
+    escena.innerHTML = '';
+    escena.appendChild(el('div','error','<b>No se pudo leer el JSON.</b><br>Revisa comas, comillas y llaves en el bloque de datos.<br><code>'+esc(err.message)+'</code>'));
+    btnAnt.disabled = btnSig.disabled = true;
+    return;
+  }
+
+  btnAnt.addEventListener('click', function(){ ir(actual-1); });
+  btnSig.addEventListener('click', function(){ ir(actual+1); });
+  document.addEventListener('keydown', function(e){
+    if (e.altKey || e.ctrlKey || e.metaKey) return;
+    var k = e.key;
+    if (k === ' ' && e.target.tagName === 'BUTTON') return;
+    if (k==='ArrowRight' || k==='PageDown' || k===' '){ e.preventDefault(); ir(actual+1); }
+    else if (k==='ArrowLeft' || k==='PageUp'){ e.preventDefault(); ir(actual-1); }
+    else if (k==='Home'){ ir(0); }
+    else if (k==='End'){ ir(total-1); }
+  });
+  var x0 = null;
+  document.addEventListener('touchstart', function(e){ x0 = e.touches[0].clientX; }, {passive:true});
+  document.addEventListener('touchend', function(e){
+    if (x0 === null) return;
+    var dx = e.changedTouches[0].clientX - x0; x0 = null;
+    if (Math.abs(dx) > 60) ir(actual + (dx < 0 ? 1 : -1));
+  }, {passive:true});
+  window.addEventListener('hashchange', function(){ ir(desdeHash()); });
+
+  actual = Math.max(0, Math.min(total-1, desdeHash()));
+  dibujar(false);
+})();
+</script>
+</body>
+</html>
