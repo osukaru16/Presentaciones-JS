@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Condicionales, puertas lógicas y bucles en cuatro lenguajes</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Lexend:wght@300;400;600&display=swap">
+<style>
+:root{
+  color-scheme: dark;
+  --bg:#12141c; --panel:#1b1f2b; --code:#0d0f16; --line:#2c3243;
+  --text:#e9e7f1; --muted:#a8adc0;
+  --var:#7db4ff; --const:#f0a6c8; --arr:#6fd9bf; --aviso:#ffcf70; --neutro:#c9c6d8;
+  --sans:"Lexend", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono:"JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*,*::before,*::after{box-sizing:inherit}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{height:100%;margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);font-size:1.125rem;line-height:1.65;display:flex;flex-direction:column}
+.progreso{height:4px;background:var(--line);flex:none}
+.progreso i{display:block;height:100%;width:0;background:var(--text);transition:width .3s}
+main{flex:1;overflow-y:auto;overflow-x:hidden;padding:clamp(1.25rem,4vw,3rem)}
+.slide{max-width:68rem;margin:0 auto;padding-left:clamp(1rem,2.5vw,1.75rem);border-left:5px solid var(--acento,var(--neutro))}
+.slide[data-acento=var]{--acento:var(--var)}
+.slide[data-acento=const]{--acento:var(--const)}
+.slide[data-acento=arr]{--acento:var(--arr)}
+.slide[data-acento=neutro]{--acento:var(--neutro)}
+.slide.entra{animation:entra .25s ease-out}
+@keyframes entra{from{opacity:0;transform:translateX(14px)}to{opacity:1;transform:none}}
+h1,h2{margin:0 0 .75rem;font-weight:600;line-height:1.2;letter-spacing:-.01em;font-size:clamp(1.75rem,4.2vw,2.9rem);color:var(--acento)}
+.portada h1{font-size:clamp(2.2rem,6.5vw,4.6rem)}
+.portada .texto{font-size:clamp(1.15rem,2.4vw,1.5rem);max-width:36rem}
+.texto{max-width:44rem;margin:0 0 1.25rem}
+code{font-family:var(--mono);font-size:.92em;background:var(--code);border:1px solid var(--line);border-radius:5px;padding:.08em .4em;color:var(--acento)}
+ul.puntos{margin:1.25rem 0 0;padding-left:1.2rem;max-width:44rem}
+ul.puntos li{margin:.45rem 0}
+ul.puntos li::marker{color:var(--acento)}
+.cuerpo{display:flex;flex-wrap:wrap;gap:1.25rem;align-items:flex-start;margin-top:.5rem}
+.bloque-codigo{flex:1 1 24rem;min-width:0;max-width:40rem}
+.bloque-codigo.ancho{flex-basis:100%;max-width:none}
+pre{margin:0;font-family:var(--mono);font-size:clamp(.85rem,1.9vw,1.02rem);line-height:1.6;overflow-x:auto}
+.codigo{background:var(--code);border:1px solid var(--line);border-radius:10px 10px 0 0;padding:1rem 1.25rem}
+.codigo:last-child{border-radius:10px}
+.tabs + .codigo{border-top-left-radius:0}
+.salida{background:var(--panel);border:1px solid var(--line);border-top:0;border-radius:0 0 10px 10px;padding:.75rem 1.25rem;color:var(--muted)}
+.salida span{display:block;font-family:var(--sans);font-size:.8rem;margin-bottom:.25rem}
+.tabs{display:flex;flex-wrap:wrap;gap:.25rem;margin-bottom:-1px;position:relative}
+.tab{border-radius:8px 8px 0 0;border:1px solid var(--line);padding:.4rem .9rem;font-size:.9rem;background:var(--bg);color:var(--muted)}
+.tab.on{background:var(--code);color:var(--acento);border-bottom-color:var(--code)}
+.grid4{display:grid;grid-template-columns:repeat(auto-fit,minmax(17rem,1fr));gap:1rem}
+.mini h3{margin:0 0 .35rem;font-size:1rem;font-weight:600;color:var(--acento)}
+.mini .codigo{border-radius:10px}
+.k{color:#c9a7ff}.s{color:#8fe3a8}.n{color:var(--aviso)}.c{color:#7f869b;font-style:italic}.f{color:var(--var)}.v{color:#ffb38a}
+.visual{flex:1 1 16rem;min-width:0}
+.leyenda{margin:.75rem 0 0;font-size:.95rem;color:var(--muted);max-width:30rem}
+.cajas{display:flex;flex-wrap:wrap;gap:.9rem}
+.caja{min-width:6.5rem;background:var(--panel);border:2px solid var(--neutro);border-radius:10px;padding:.5rem .9rem .8rem}
+.caja.variable{border-color:var(--var);border-style:dashed}
+.caja.constante{border-color:var(--const);border-width:4px}
+.caja small{display:block;font-size:.8rem;color:var(--muted)}
+.caja b{display:block;font-family:var(--mono);font-size:1.5rem;font-weight:600;margin-top:.15rem}
+.caja .nom{font-family:var(--mono);font-size:.95rem}
+.indices{display:flex;flex-wrap:wrap;gap:.35rem;align-items:flex-end}
+.indices .nombre{font-family:var(--mono);font-size:1.1rem;margin-right:.5rem;align-self:center}
+.cel{text-align:center}
+.cel em{display:block;font-style:normal;font-family:var(--mono);font-size:.9rem;color:var(--arr)}
+.cel b{display:block;min-width:5.5rem;font-family:var(--mono);font-weight:400;font-size:1.05rem;padding:.7rem .6rem;background:var(--panel);border:2px solid var(--arr);border-radius:8px}
+.partes{display:flex;flex-wrap:wrap;gap:.9rem 1rem}
+.parte{text-align:center}
+.parte b{display:block;font-family:var(--mono);font-size:clamp(1.5rem,4vw,2.4rem);font-weight:600;padding:.2rem .8rem;border-bottom:3px solid var(--p)}
+.parte small{display:block;margin-top:.35rem;font-size:.85rem;color:var(--muted);max-width:7.5rem}
+.parte:nth-child(1){--p:#c9a7ff}.parte:nth-child(2){--p:var(--var)}.parte:nth-child(3){--p:var(--aviso)}.parte:nth-child(4){--p:#8fe3a8}.parte:nth-child(5){--p:var(--muted)}
+.tabla{overflow-x:auto}.tabla table{border-collapse:collapse;width:100%;font-size:.95rem}.tabla th,.tabla td{text-align:left;padding:.5rem .8rem;border-bottom:1px solid var(--line);white-space:nowrap}.tabla th{color:var(--acento);font-size:.85rem;font-weight:600}
+.columnas{display:grid;grid-template-columns:repeat(auto-fit,minmax(14rem,1fr));gap:1rem;margin-top:1.25rem}
+.col{background:var(--panel);border:1px solid var(--line);border-top:4px solid var(--c,var(--neutro));border-radius:10px;padding:1rem 1.25rem}
+.col[data-acento=var]{--c:var(--var)}.col[data-acento=const]{--c:var(--const)}.col[data-acento=arr]{--c:var(--arr)}.col[data-acento=aviso]{--c:var(--aviso)}
+.col h3{margin:0 0 .5rem;font-size:1.15rem;font-weight:600;color:var(--c)}
+.col ul{margin:0;padding-left:1.1rem}.col li{margin:.4rem 0}
+.col code{color:var(--c)}
+.nota{max-width:44rem;margin:1.25rem 0 0;padding:.75rem 1rem;background:var(--panel);border-left:4px solid var(--aviso);border-radius:0 8px 8px 0}
+nav{flex:none;display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.75rem clamp(1rem,4vw,3rem);border-top:1px solid var(--line);background:var(--panel)}
+nav .info{color:var(--muted);font-size:.9rem;text-align:center}
+button{font:inherit;font-size:1rem;color:var(--text);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.55rem 1.1rem;cursor:pointer}
+button:hover:not(:disabled){border-color:var(--text)}
+button:disabled{opacity:.35;cursor:default}
+button:focus-visible{outline:3px solid var(--aviso);outline-offset:2px}
+.tab{padding:.4rem .9rem;font-size:.9rem}
+.error{max-width:40rem;margin:2rem auto;padding:1rem 1.25rem;border:2px solid var(--aviso);border-radius:10px;background:var(--panel)}
+@media (prefers-reduced-motion:reduce){.slide.entra{animation:none}.progreso i{transition:none}}
+@media (max-width:520px){body{font-size:1rem}nav .info span{display:none}}
+</style>
+</head>
+<body>
+<div class="progreso" aria-hidden="true"><i id="barra"></i></div>
+<main id="escena" tabindex="-1" aria-live="polite"></main>
+<nav>
+  <button id="ant" type="button">Anterior</button>
+  <div class="info"><span id="titulo-web"></span> <b id="contador"></b></div>
+  <button id="sig" type="button">Siguiente</button>
+</nav>
+
+<!--
+  CONTENIDO EDITABLE
+  Todo el texto de las diapositivas está en este bloque JSON.
+  Edita solo los textos entre comillas. Campos de cada diapositiva (todos opcionales menos "titulo"):
+    acento: "var" (azul), "const" (rosa), "arr" (verde) o "neutro"
+    titulo, texto, nota
+    puntos: lista de frases · usa `comillas inversas` para resaltar código
+    codigo: un texto, o un objeto con un código por lenguaje:
+            {"javascript":"...","python":"...","php":"...","java":"..."}  (usa \n para los saltos de línea y \" para comillas)
+    modo: "todos" muestra todos los lenguajes a la vez en lugar de pestañas
+    salida: un texto, o un objeto con una salida por lenguaje
+    consejo: objeto con una frase por lenguaje, que cambia al elegir pestaña
+    visual: {"tipo":"cajas"|"partes"|"indices"|"tabla", ...}
+            tabla: {"tipo":"tabla","cabecera":[...],"filas":[[...],[...]]}
+    columnas: lista de {titulo, acento, puntos}
+  Lenguajes admitidos para colorear el código: javascript, python, php, java
+-->
+<script type="application/json" id="datos">
+{
+  "meta": { "titulo": "Decisiones y repeticiones" },
+  "lenguajes": { "javascript": "JavaScript", "python": "Python", "php": "PHP", "java": "Java" },
+  "diapositivas": [
+    {
+      "portada": true,
+      "acento": "neutro",
+      "titulo": "Condicionales, puertas lógicas y bucles",
+      "texto": "Cómo hace un programa para decidir y para repetir, explicado en JavaScript, Python, PHP y Java.",
+      "nota": "Avanza con las flechas del teclado, deslizando o con los botones de abajo. Cuando veas pestañas, elige el lenguaje que quieras: se mantiene en todas las diapositivas."
+    },
+    {
+      "acento": "neutro",
+      "titulo": "Decidir y repetir",
+      "texto": "Un programa que solo ejecuta líneas una detrás de otra es muy limitado. Con estas tres herramientas puede reaccionar a los datos.",
+      "columnas": [
+        { "titulo": "Condicional", "acento": "var", "puntos": [ "Decide qué camino seguir.", "Si ocurre esto, haz aquello; si no, haz otra cosa." ] },
+        { "titulo": "Puertas lógicas", "acento": "const", "puntos": [ "Combinan varias condiciones.", "Se llaman Y, O y NO." ] },
+        { "titulo": "Bucle", "acento": "arr", "puntos": [ "Repite una acción.", "Evita escribir lo mismo muchas veces." ] }
+      ]
+    },
+    {
+      "acento": "var",
+      "titulo": "Condición: una pregunta de sí o no",
+      "texto": "Antes de decidir hay que preguntar. Una condición compara valores y siempre da como resultado verdadero o falso.",
+      "codigo": {
+        "javascript": "const edad = 18;\nconsole.log(edad >= 18);\nconsole.log(edad === 20);",
+        "python": "edad = 18\nprint(edad >= 18)\nprint(edad == 20)",
+        "php": "$edad = 18;\nvar_dump($edad >= 18);\nvar_dump($edad === 20);",
+        "java": "int edad = 18;\nSystem.out.println(edad >= 18);\nSystem.out.println(edad == 20);"
+      },
+      "salida": {
+        "javascript": "true\nfalse",
+        "python": "True\nFalse",
+        "php": "bool(true)\nbool(false)",
+        "java": "true\nfalse"
+      },
+      "consejo": {
+        "javascript": "En JavaScript se prefiere `===` y `!==`: comparan también el tipo del dato.",
+        "python": "Python usa `==` y escribe `True` y `False` con mayúscula inicial.",
+        "php": "PHP también tiene `===` para comparar valor y tipo.",
+        "java": "En Java, los números se comparan con `==`, pero los textos con `.equals()`."
+      },
+      "visual": {
+        "tipo": "tabla",
+        "cabecera": [ "Operador", "Significa", "Ejemplo", "Resultado" ],
+        "filas": [
+          [ "`==`", "igual a", "5 == 5", "verdadero" ],
+          [ "`!=`", "distinto de", "5 != 3", "verdadero" ],
+          [ "`<`", "menor que", "3 < 2", "falso" ],
+          [ "`>`", "mayor que", "7 > 2", "verdadero" ],
+          [ "`<=`", "menor o igual", "4 <= 4", "verdadero" ],
+          [ "`>=`", "mayor o igual", "1 >= 2", "falso" ]
+        ],
+        "leyenda": "Cuidado: `=` guarda un valor y `==` compara."
+      }
+    },
+    {
+      "acento": "var",
+      "titulo": "if y else: dos caminos",
+      "texto": "`if` significa “si”: ejecuta un bloque solo cuando la condición es verdadera. `else` significa “si no” y recoge el otro camino.",
+      "codigo": {
+        "javascript": "const edad = 17;\n\nif (edad >= 18) {\n  console.log(\"Eres mayor de edad\");\n} else {\n  console.log(\"Eres menor de edad\");\n}",
+        "python": "edad = 17\n\nif edad >= 18:\n    print(\"Eres mayor de edad\")\nelse:\n    print(\"Eres menor de edad\")",
+        "php": "$edad = 17;\n\nif ($edad >= 18) {\n    echo \"Eres mayor de edad\";\n} else {\n    echo \"Eres menor de edad\";\n}",
+        "java": "int edad = 17;\n\nif (edad >= 18) {\n    System.out.println(\"Eres mayor de edad\");\n} else {\n    System.out.println(\"Eres menor de edad\");\n}"
+      },
+      "salida": "Eres menor de edad",
+      "consejo": {
+        "javascript": "La condición va entre paréntesis y el bloque entre llaves `{ }`.",
+        "python": "Python no usa llaves ni paréntesis: usa dos puntos `:` y la sangría (4 espacios) marca el bloque.",
+        "php": "PHP es casi igual que JavaScript, pero las variables llevan `$`.",
+        "java": "Java es casi igual que JavaScript, pero hay que declarar el tipo: `int edad`."
+      }
+    },
+    {
+      "acento": "var",
+      "titulo": "Más de dos caminos: else if",
+      "texto": "Si hay varias opciones, se encadenan condiciones. Se revisan de arriba abajo y se ejecuta solo la primera que sea verdadera.",
+      "codigo": {
+        "javascript": "const nota = 7;\n\nif (nota >= 9) {\n  console.log(\"Sobresaliente\");\n} else if (nota >= 5) {\n  console.log(\"Aprobado\");\n} else {\n  console.log(\"Suspenso\");\n}",
+        "python": "nota = 7\n\nif nota >= 9:\n    print(\"Sobresaliente\")\nelif nota >= 5:\n    print(\"Aprobado\")\nelse:\n    print(\"Suspenso\")",
+        "php": "$nota = 7;\n\nif ($nota >= 9) {\n    echo \"Sobresaliente\";\n} elseif ($nota >= 5) {\n    echo \"Aprobado\";\n} else {\n    echo \"Suspenso\";\n}",
+        "java": "int nota = 7;\n\nif (nota >= 9) {\n    System.out.println(\"Sobresaliente\");\n} else if (nota >= 5) {\n    System.out.println(\"Aprobado\");\n} else {\n    System.out.println(\"Suspenso\");\n}"
+      },
+      "salida": "Aprobado",
+      "consejo": {
+        "javascript": "En JavaScript se escribe `else if`, en dos palabras.",
+        "python": "Python lo abrevia a `elif`.",
+        "php": "PHP admite `elseif` (junto) y también `else if` (separado).",
+        "java": "En Java se escribe `else if`, en dos palabras."
+      }
+    },
+    {
+      "acento": "var",
+      "titulo": "switch: elegir entre valores concretos",
+      "texto": "Cuando una variable puede valer varias cosas concretas, `switch` es más ordenado que muchos `else if`.",
+      "codigo": {
+        "javascript": "const dia = 2;\n\nswitch (dia) {\n  case 1:\n    console.log(\"Lunes\");\n    break;\n  case 2:\n    console.log(\"Martes\");\n    break;\n  default:\n    console.log(\"Otro día\");\n}",
+        "python": "dia = 2\n\nmatch dia:\n    case 1:\n        print(\"Lunes\")\n    case 2:\n        print(\"Martes\")\n    case _:\n        print(\"Otro día\")",
+        "php": "$dia = 2;\n\nswitch ($dia) {\n    case 1:\n        echo \"Lunes\";\n        break;\n    case 2:\n        echo \"Martes\";\n        break;\n    default:\n        echo \"Otro día\";\n}",
+        "java": "int dia = 2;\n\nswitch (dia) {\n    case 1:\n        System.out.println(\"Lunes\");\n        break;\n    case 2:\n        System.out.println(\"Martes\");\n        break;\n    default:\n        System.out.println(\"Otro día\");\n}"
+      },
+      "salida": "Martes",
+      "consejo": {
+        "javascript": "Sin `break`, la ejecución sigue por el caso siguiente. Es un error muy común. `default` recoge cualquier otro valor.",
+        "python": "Python usa `match` y `case` (desde la versión 3.10). No necesita `break`, y `case _` hace de `default`.",
+        "php": "PHP funciona igual que JavaScript: no olvides el `break`.",
+        "java": "Java funciona igual: no olvides el `break`."
+      }
+    },
+    {
+      "acento": "const",
+      "titulo": "Puertas lógicas: Y, O y NO",
+      "texto": "Las puertas lógicas combinan condiciones. Cada una recibe valores de verdadero o falso y devuelve uno nuevo.",
+      "visual": {
+        "tipo": "tabla",
+        "cabecera": [ "A", "B", "A Y B", "A O B" ],
+        "filas": [
+          [ "verdadero", "verdadero", "verdadero", "verdadero" ],
+          [ "verdadero", "falso", "falso", "verdadero" ],
+          [ "falso", "verdadero", "falso", "verdadero" ],
+          [ "falso", "falso", "falso", "falso" ]
+        ],
+        "leyenda": "Esta tabla se llama tabla de verdad."
+      },
+      "puntos": [
+        "Y (AND): solo es verdadero si las dos condiciones lo son.",
+        "O (OR): es verdadero si al menos una de las dos lo es.",
+        "NO (NOT): invierte el valor. NO verdadero es falso, y NO falso es verdadero."
+      ]
+    },
+    {
+      "acento": "const",
+      "titulo": "Cómo se escriben en cada lenguaje",
+      "texto": "La idea es la misma en los cuatro lenguajes. Solo cambia el símbolo o la palabra.",
+      "visual": {
+        "tipo": "tabla",
+        "cabecera": [ "Lenguaje", "Y", "O", "NO" ],
+        "filas": [
+          [ "JavaScript", "`&&`", "`||`", "`!`" ],
+          [ "Python", "`and`", "`or`", "`not`" ],
+          [ "PHP", "`&&`", "`||`", "`!`" ],
+          [ "Java", "`&&`", "`||`", "`!`" ]
+        ]
+      },
+      "nota": "PHP también admite `and` y `or`, pero tienen menos prioridad. En la práctica se prefieren `&&` y `||`."
+    },
+    {
+      "acento": "const",
+      "titulo": "Combinar condiciones en un if",
+      "texto": "Para entrar a un evento hacen falta dos cosas: ser mayor de edad y tener entrada. Las dos deben cumplirse.",
+      "codigo": {
+        "javascript": "const edad = 20;\nconst tieneEntrada = true;\n\nif (edad >= 18 && tieneEntrada) {\n  console.log(\"Puedes entrar\");\n} else {\n  console.log(\"No puedes entrar\");\n}",
+        "python": "edad = 20\ntiene_entrada = True\n\nif edad >= 18 and tiene_entrada:\n    print(\"Puedes entrar\")\nelse:\n    print(\"No puedes entrar\")",
+        "php": "$edad = 20;\n$tieneEntrada = true;\n\nif ($edad >= 18 && $tieneEntrada) {\n    echo \"Puedes entrar\";\n} else {\n    echo \"No puedes entrar\";\n}",
+        "java": "int edad = 20;\nboolean tieneEntrada = true;\n\nif (edad >= 18 && tieneEntrada) {\n    System.out.println(\"Puedes entrar\");\n} else {\n    System.out.println(\"No puedes entrar\");\n}"
+      },
+      "salida": "Puedes entrar",
+      "consejo": {
+        "javascript": "`&&` es Y, `||` es O y `!` es NO. Prueba a cambiar `tieneEntrada` a `false`.",
+        "python": "Python usa palabras: `and`, `or` y `not`. Se lee casi como una frase.",
+        "php": "En PHP: `&&`, `||` y `!`. Las variables llevan `$`.",
+        "java": "En Java: `&&`, `||` y `!`. Los valores verdadero o falso se guardan en un `boolean`."
+      }
+    },
+    {
+      "acento": "arr",
+      "titulo": "Bucle for: repetir un número de veces",
+      "texto": "Cuando sabes cuántas veces hay que repetir algo, el bucle `for` cuenta por ti. Aquí cuenta del 1 al 3.",
+      "codigo": {
+        "javascript": "for (let i = 1; i <= 3; i++) {\n  console.log(i);\n}",
+        "python": "for i in range(1, 4):\n    print(i)",
+        "php": "for ($i = 1; $i <= 3; $i++) {\n    echo $i . \"\\n\";\n}",
+        "java": "for (int i = 1; i <= 3; i++) {\n    System.out.println(i);\n}"
+      },
+      "salida": "1\n2\n3",
+      "consejo": {
+        "javascript": "Tres partes separadas por `;`: inicio, condición para seguir y paso. `i++` suma 1.",
+        "python": "`range(1, 4)` produce 1, 2 y 3: el número final no se incluye.",
+        "php": "Igual que JavaScript, pero la variable lleva `$`.",
+        "java": "Igual que JavaScript, pero la variable lleva tipo: `int i`."
+      },
+      "visual": {
+        "tipo": "partes",
+        "items": [
+          { "t": "i = 1", "r": "inicio" },
+          { "t": "i <= 3", "r": "sigue mientras sea verdadero" },
+          { "t": "i++", "r": "paso en cada vuelta" }
+        ],
+        "leyenda": "Así se leen las tres partes de un `for` en JavaScript, PHP y Java."
+      }
+    },
+    {
+      "acento": "arr",
+      "titulo": "Bucle while: repetir mientras se cumpla",
+      "texto": "Cuando no sabes cuántas vueltas harán falta, `while` repite mientras la condición sea verdadera.",
+      "codigo": {
+        "javascript": "let contador = 3;\n\nwhile (contador > 0) {\n  console.log(contador);\n  contador--;\n}\nconsole.log(\"¡Despegue!\");",
+        "python": "contador = 3\n\nwhile contador > 0:\n    print(contador)\n    contador -= 1\n\nprint(\"¡Despegue!\")",
+        "php": "$contador = 3;\n\nwhile ($contador > 0) {\n    echo $contador . \"\\n\";\n    $contador--;\n}\necho \"¡Despegue!\";",
+        "java": "int contador = 3;\n\nwhile (contador > 0) {\n    System.out.println(contador);\n    contador--;\n}\nSystem.out.println(\"¡Despegue!\");"
+      },
+      "salida": "3\n2\n1\n¡Despegue!",
+      "consejo": {
+        "javascript": "`contador--` resta 1 al contador en cada vuelta.",
+        "python": "En Python se escribe `contador -= 1`: no existe `--`.",
+        "php": "`$contador--` resta 1 a la variable.",
+        "java": "`contador--` resta 1. Java también tiene `do { } while ()`, que ejecuta el bloque al menos una vez."
+      },
+      "nota": "Cuidado con los bucles infinitos: si la condición nunca llega a ser falsa, el programa no termina."
+    },
+    {
+      "acento": "neutro",
+      "titulo": "Resumen: decidir, combinar y repetir",
+      "texto": "Un condicional, una puerta lógica y un bucle en una sola mirada.",
+      "modo": "todos",
+      "codigo": {
+        "javascript": "if (edad >= 18 && activo) {\n  console.log(\"Acceso\");\n}\n\nfor (let i = 0; i < 3; i++) {\n  console.log(i);\n}",
+        "python": "if edad >= 18 and activo:\n    print(\"Acceso\")\n\nfor i in range(3):\n    print(i)",
+        "php": "if ($edad >= 18 && $activo) {\n    echo \"Acceso\";\n}\n\nfor ($i = 0; $i < 3; $i++) {\n    echo $i;\n}",
+        "java": "if (edad >= 18 && activo) {\n    System.out.println(\"Acceso\");\n}\n\nfor (int i = 0; i < 3; i++) {\n    System.out.println(i);\n}"
+      },
+      "nota": "Siguiente paso: combina las tres herramientas. Por ejemplo, recorre una lista de edades con un bucle y usa un `if` para decidir quién puede entrar."
+    }
+  ]
+}
+</script>
+
+<script>
+(function(){
+  var escena = document.getElementById('escena');
+  var barra = document.getElementById('barra');
+  var contador = document.getElementById('contador');
+  var btnAnt = document.getElementById('ant');
+  var btnSig = document.getElementById('sig');
+  var datos, total, actual = 0, lang = 'javascript';
+
+  var KW = { javascript:'let|const|for|if|else|switch|case|break|default|while|true|false', python:'for|in|if|elif|else|while|match|case|and|or|not|True|False', php:'for|if|else|elseif|switch|case|break|default|while|true|false|echo', java:'int|boolean|for|if|else|switch|case|break|default|while|true|false' };
+  var BI = { javascript:'console|log', python:'print|range', php:'var_dump', java:'System|out|println' };
+  var COM = { python:'#', php:'(?:\\/\\/|#)', javascript:'\\/\\/', java:'\\/\\/' };
+
+  function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function rico(s){ return esc(s).replace(/`([^`]+)`/g,'<code>$1</code>'); }
+  function el(tag, cls, html){
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (html != null) e.innerHTML = html;
+    return e;
+  }
+  function nombreLang(l){ return (datos.lenguajes && datos.lenguajes[l]) || l; }
+
+  function resaltar(codigo, l){
+    if (!KW[l]) return esc(codigo);
+    var re = new RegExp('(' + COM[l] + '.*$)|("[^"\\n]*")|(' + (l === 'php' ? '\\$\\w+' : '(?!)') + ')|\\b(' + KW[l] + ')\\b|\\b(\\d+(?:\\.\\d+)?)\\b|\\b(' + BI[l] + ')\\b', 'gm');
+    return esc(codigo).replace(re, function(m,c,s,v,k,n,f){
+      var t = c?'c' : s?'s' : v?'v' : k?'k' : n?'n' : 'f';
+      return '<span class="'+t+'">'+m+'</span>';
+    });
+  }
+
+  function visual(v){
+    var cont = el('div','visual'), fila;
+    if (v.tipo === 'cajas'){
+      fila = el('div','cajas');
+      (v.items||[]).forEach(function(it){
+        var c = el('div','caja'+(it.tipo?' '+it.tipo:''));
+        c.innerHTML = (it.tipo ? '<small>'+esc(it.tipo)+'</small>' : '') + '<span class="nom">'+esc(it.n)+'</span><b>'+esc(it.v)+'</b>';
+        fila.appendChild(c);
+      });
+    } else if (v.tipo === 'partes'){
+      fila = el('div','partes');
+      (v.items||[]).forEach(function(it){ fila.appendChild(el('div','parte','<b>'+esc(it.t)+'</b><small>'+esc(it.r)+'</small>')); });
+    } else if (v.tipo === 'indices'){
+      fila = el('div','indices');
+      fila.appendChild(el('span','nombre',esc(v.nombre||'')+' ='));
+      (v.items||[]).forEach(function(val,i){ fila.appendChild(el('div','cel','<em>'+i+'</em><b>'+esc(val)+'</b>')); });
+    } else if (v.tipo === 'tabla'){
+      fila = el('div','tabla');
+      fila.innerHTML = '<table><thead><tr>' + (v.cabecera||[]).map(function(c){ return '<th>'+rico(c)+'</th>'; }).join('') + '</tr></thead><tbody>' +
+        (v.filas||[]).map(function(r){ return '<tr>' + r.map(function(c){ return '<td>'+rico(c)+'</td>'; }).join('') + '</tr>'; }).join('') + '</tbody></table>';
+    }
+    if (fila) cont.appendChild(fila);
+    if (v.leyenda) cont.appendChild(el('p','leyenda',rico(v.leyenda)));
+    return cont;
+  }
+
+  function porLang(x, l){ return (x && typeof x === 'object') ? x[l] : x; }
+
+  function bloqueCodigo(s){
+    var cod = s.codigo, b = el('div','bloque-codigo');
+    if (typeof cod === 'string'){
+      b.appendChild(el('pre','codigo','<code style="all:unset">'+resaltar(cod,'javascript')+'</code>'));
+      if (s.salida) b.appendChild(el('pre','salida','<span>Resultado en la consola</span>'+esc(porLang(s.salida,'javascript'))));
+      return b;
+    }
+    var langs = Object.keys(cod);
+    if (s.modo === 'todos'){
+      b.classList.add('ancho');
+      var g = el('div','grid4');
+      langs.forEach(function(l){
+        g.appendChild(el('div','mini','<h3>'+esc(nombreLang(l))+'</h3><pre class="codigo"><code style="all:unset">'+resaltar(cod[l],l)+'</code></pre>'));
+      });
+      b.appendChild(g);
+      return b;
+    }
+    var sel = langs.indexOf(lang) >= 0 ? lang : langs[0];
+    var tabs = el('div','tabs'); tabs.setAttribute('role','tablist');
+    langs.forEach(function(l){
+      var t = el('button','tab'+(l===sel?' on':''), esc(nombreLang(l)));
+      t.type = 'button'; t.setAttribute('role','tab'); t.setAttribute('aria-selected', l===sel);
+      t.addEventListener('click', function(){ lang = l; dibujar(false); });
+      tabs.appendChild(t);
+    });
+    b.appendChild(tabs);
+    b.appendChild(el('pre','codigo','<code style="all:unset">'+resaltar(cod[sel],sel)+'</code>'));
+    var sal = porLang(s.salida, sel);
+    if (sal) b.appendChild(el('pre','salida','<span>Resultado en la consola</span>'+esc(sal)));
+    return b;
+  }
+
+  function dibujar(animar){
+    var s = datos.diapositivas[actual];
+    var sec = el('article','slide'+(s.portada?' portada':'')+(animar?' entra':''));
+    sec.dataset.acento = s.acento || 'neutro';
+    sec.appendChild(el(s.portada ? 'h1' : 'h2', null, rico(s.titulo || '')));
+    if (s.texto) sec.appendChild(el('p','texto',rico(s.texto)));
+
+    if (s.codigo || s.visual){
+      var cuerpo = el('div','cuerpo');
+      if (s.codigo) cuerpo.appendChild(bloqueCodigo(s));
+      if (s.visual) cuerpo.appendChild(visual(s.visual));
+      sec.appendChild(cuerpo);
+    }
+    if (s.consejo){
+      var langsC = s.codigo && typeof s.codigo === 'object' ? Object.keys(s.codigo) : [];
+      var selC = langsC.indexOf(lang) >= 0 ? lang : langsC[0];
+      if (s.consejo[selC]) sec.appendChild(el('p','nota',rico(s.consejo[selC])));
+    }
+    if (s.puntos && s.puntos.length){
+      var ul = el('ul','puntos');
+      s.puntos.forEach(function(p){ ul.appendChild(el('li',null,rico(p))); });
+      sec.appendChild(ul);
+    }
+    if (s.columnas && s.columnas.length){
+      var g = el('div','columnas');
+      s.columnas.forEach(function(c){
+        var d = el('div','col'); d.dataset.acento = c.acento || 'neutro';
+        d.appendChild(el('h3',null,rico(c.titulo||'')));
+        var l = el('ul');
+        (c.puntos||[]).forEach(function(p){ l.appendChild(el('li',null,rico(p))); });
+        d.appendChild(l); g.appendChild(d);
+      });
+      sec.appendChild(g);
+    }
+    if (s.nota) sec.appendChild(el('p','nota',rico(s.nota)));
+
+    var y = escena.scrollTop;
+    escena.innerHTML = '';
+    escena.appendChild(sec);
+    escena.scrollTop = animar ? 0 : y;
+    contador.textContent = (actual+1) + ' / ' + total;
+    barra.style.width = ((actual+1)/total*100) + '%';
+    btnAnt.disabled = actual === 0;
+    btnSig.disabled = actual === total-1;
+  }
+
+  function ir(n){
+    n = Math.max(0, Math.min(total-1, n));
+    if (n === actual) return;
+    actual = n;
+    dibujar(true);
+    try { history.replaceState(null,'','#d'+(actual+1)); } catch(e){}
+  }
+  function desdeHash(){ var m = /^#d(\d+)$/.exec(location.hash); return m ? parseInt(m[1],10)-1 : 0; }
+
+  try {
+    datos = JSON.parse(document.getElementById('datos').textContent);
+    total = datos.diapositivas.length;
+    if (!total) throw new Error('La lista "diapositivas" está vacía.');
+    document.getElementById('titulo-web').textContent = (datos.meta && datos.meta.titulo) || '';
+  } catch(err){
+    escena.innerHTML = '';
+    escena.appendChild(el('div','error','<b>No se pudo leer el JSON.</b><br>Revisa comas, comillas y llaves en el bloque de datos.<br><code>'+esc(err.message)+'</code>'));
+    btnAnt.disabled = btnSig.disabled = true;
+    return;
+  }
+
+  btnAnt.addEventListener('click', function(){ ir(actual-1); });
+  btnSig.addEventListener('click', function(){ ir(actual+1); });
+  document.addEventListener('keydown', function(e){
+    if (e.altKey || e.ctrlKey || e.metaKey) return;
+    var k = e.key;
+    if (k === ' ' && e.target.tagName === 'BUTTON') return;
+    if (k==='ArrowRight' || k==='PageDown' || k===' '){ e.preventDefault(); ir(actual+1); }
+    else if (k==='ArrowLeft' || k==='PageUp'){ e.preventDefault(); ir(actual-1); }
+    else if (k==='Home'){ ir(0); }
+    else if (k==='End'){ ir(total-1); }
+  });
+  var x0 = null;
+  document.addEventListener('touchstart', function(e){ x0 = e.touches[0].clientX; }, {passive:true});
+  document.addEventListener('touchend', function(e){
+    if (x0 === null) return;
+    var dx = e.changedTouches[0].clientX - x0; x0 = null;
+    if (Math.abs(dx) > 60) ir(actual + (dx < 0 ? 1 : -1));
+  }, {passive:true});
+  window.addEventListener('hashchange', function(){ ir(desdeHash()); });
+
+  actual = Math.max(0, Math.min(total-1, desdeHash()));
+  dibujar(false);
+})();
+</script>
+</body>
+</html>
