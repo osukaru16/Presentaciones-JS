@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Historia de la criptografía</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&display=swap">
+<style>
+:root{--bg:#e6edf3;--surface:#fff;--ink:#10243a;--muted:#4b6177;--accent:#0f7f86;--amber:#c98a00;--line:#b9c8d6;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1b2a;--surface:#16293d;--ink:#e6eef6;--muted:#9db3c7;--accent:#4cc3c9;--amber:#f0b429;--line:#2d4560}}
+:root[data-theme="dark"]{--bg:#0e1b2a;--surface:#16293d;--ink:#e6eef6;--muted:#9db3c7;--accent:#4cc3c9;--amber:#f0b429;--line:#2d4560}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--ink);font-family:"Bricolage Grotesque",system-ui,sans-serif;display:flex;flex-direction:column;line-height:1.55}
+header{display:flex;align-items:center;gap:12px;padding:12px 20px}
+.bar{flex:1;height:6px;background:var(--line);border-radius:3px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--accent);transition:width .35s}
+.count{font-size:.9rem;color:var(--muted);min-width:48px;text-align:right}
+main{flex:1;overflow-y:auto;padding:8px 20px 20px}
+.slide{max-width:900px;margin:0 auto}
+.era{display:inline-block;background:var(--amber);color:#1b1400;font-weight:600;padding:3px 12px;border-radius:99px;font-size:.9rem}
+h1{font-size:clamp(2rem,6vw,3.6rem);line-height:1.05;margin:.35em 0 .3em;font-weight:800;letter-spacing:-.02em}
+p{font-size:1.1rem;max-width:68ch;margin:.6em 0}
+.panel{background:var(--surface);border:2px solid var(--line);border-radius:14px;padding:16px;margin-top:16px}
+.panel h3{margin:0 0 8px;font-size:1.05rem}
+label{display:block;font-size:.95rem;color:var(--muted);margin-top:8px}
+input[type=text],textarea{width:100%;font:inherit;font-size:1.05rem;padding:8px 10px;border:2px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink)}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.out{font-family:ui-monospace,Menlo,monospace;font-size:1.15rem;background:var(--bg);border-radius:8px;padding:10px;margin-top:8px;word-break:break-word;letter-spacing:.06em;min-height:2.6em}
+button{font:inherit;font-weight:600;border:2px solid var(--accent);background:var(--accent);color:#fff;padding:8px 16px;border-radius:99px;cursor:pointer}
+button.ghost{background:transparent;color:var(--accent)}
+button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+.fact{display:none;margin-top:12px;border-left:5px solid var(--amber);padding:6px 12px;background:var(--surface);border-radius:0 8px 8px 0}
+.fact.open{display:block}
+table.grid{border-collapse:collapse;margin-top:8px}
+.grid td{border:1px solid var(--line);width:34px;height:34px;text-align:center;font-family:ui-monospace,monospace;font-weight:600}
+.scroll{overflow-x:auto}
+.bars{display:flex;align-items:flex-end;gap:3px;height:120px;margin-top:8px}
+.bars div{flex:1;background:var(--accent);border-radius:3px 3px 0 0;position:relative;min-height:2px}
+.bars div.top{background:var(--amber)}
+.bars span{position:absolute;bottom:-18px;left:0;right:0;text-align:center;font-size:.7rem;color:var(--muted)}
+.row{display:flex;gap:16px;flex-wrap:wrap}.row>*{flex:1;min-width:200px}
+.big{font-size:1.6rem;font-weight:800;color:var(--accent)}
+.tag{display:inline-block;border:2px solid var(--line);border-radius:8px;padding:2px 10px;margin:2px;font-family:ui-monospace,monospace}
+nav{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 20px 14px}
+.dots{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.dots button{width:14px;height:14px;padding:0;border-radius:50%;background:var(--line);border:0}
+.dots button.on{background:var(--accent)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header><div class="bar"><i id="prog"></i></div><div class="count" id="count"></div></header>
+<main id="main"></main>
+<nav>
+<button class="ghost" id="prev">Anterior</button>
+<div class="dots" id="dots"></div>
+<button id="next">Siguiente</button>
+</nav>
+
+<script type="application/json" id="datos">
+{
+ "titulo":"Historia de la criptografía",
+ "diapositivas":[
+  {"id":"intro","tipo":"info","epoca":"Para empezar","titulo":"Cómo esconder un mensaje","texto":["Criptografía significa “escritura oculta”. Es el arte de que solo la persona correcta pueda leer un mensaje, aunque otros lo vean.","Cada vez que usas WhatsApp, pagas con tarjeta o entras en tu banco, la criptografía trabaja por ti. Pero la idea es muy antigua. Vamos a recorrer 4.000 años de trucos, en 9 paradas.","Usa las flechas del teclado o los botones de abajo. Hay pequeños juegos para probar."],"dato":"Cifrar es esconder el significado del mensaje. Descifrar es recuperarlo. Romper un código sin la clave se llama criptoanálisis."},
+  {"id":"egipto","tipo":"info","epoca":"Hacia 1900 a. C.","titulo":"Egipto: los primeros signos raros","texto":["En la tumba de un noble egipcio, un escriba usó jeroglíficos modificados a propósito. No eran un secreto militar: probablemente buscaba dar un aire misterioso y solemne.","Es el primer caso conocido de escritura alterada con intención. Todavía no era un sistema, pero ya estaba la idea: cambiar los símbolos para que no todo el mundo entienda."],"dato":"Los jeroglíficos normales tampoco los entendía casi nadie: solo sabían leer unas pocas personas."},
+  {"id":"escitala","tipo":"escitala","epoca":"Hacia 500 a. C.","titulo":"Esparta: la escítala","texto":["Los generales espartanos enrollaban una tira de cuero en un palo de grosor concreto y escribían a lo largo. Al desenrollarla, las letras quedaban mezcladas.","Solo quien tenía un palo del mismo grosor podía leerla. Esto es un cifrado por transposición: las letras son las mismas, pero cambian de sitio."],"dato":"El grosor del palo era la clave. Aquí lo representa el número de filas."},
+  {"id":"cesar","tipo":"cesar","epoca":"Hacia 50 a. C.","titulo":"Julio César: mover el alfabeto","texto":["César escribía a sus generales cambiando cada letra por la que está unos pasos más adelante en el alfabeto. Con 3 pasos, la A pasa a ser D.","Es un cifrado por sustitución: las letras cambian, pero se quedan en su sitio. Prueba a mover el control y mira cómo cambia el mensaje."],"dato":"Según el historiador Suetonio, César usaba justo un desplazamiento de 3. Hoy se rompe en segundos, pero entonces casi nadie sabía leer."},
+  {"id":"alkindi","tipo":"frecuencias","epoca":"Hacia 850","titulo":"Al-Kindi: el primer rompecódigos","texto":["El sabio árabe Al-Kindi descubrió algo genial: en cualquier idioma, unas letras se usan mucho más que otras. En español, la E es la reina.","Si en un mensaje cifrado una letra aparece muchísimo, probablemente es la E disfrazada. Así se rompe un cifrado de César sin conocer la clave. Pulsa el botón y compruébalo."],"dato":"Nació el análisis de frecuencias, la primera gran herramienta del criptoanálisis. Durante siglos fue el terror de los cifrados simples."},
+  {"id":"vigenere","tipo":"vigenere","epoca":"1553","titulo":"Vigenère: una clave que cambia","texto":["Para frenar el análisis de frecuencias, se inventó usar una palabra clave. Cada letra del mensaje se mueve una cantidad distinta, según la letra de la clave.","Así la misma letra se cifra de formas diferentes y las frecuencias se mezclan. Durante unos 300 años se llamó “el cifrado indescifrable”."],"dato":"Charles Babbage y Friedrich Kasiski lo rompieron en el siglo XIX buscando patrones repetidos en la clave."},
+  {"id":"enigma","tipo":"info","epoca":"1930 – 1945","titulo":"Enigma: la máquina de la guerra","texto":["Alemania cifraba sus mensajes con Enigma, una máquina con rotores que giraban con cada tecla. Cada letra se cifraba distinto, y el número de combinaciones era astronómico: unos 159 trillones.","Matemáticos polacos y después Alan Turing y su equipo en Bletchley Park construyeron máquinas para probar claves a gran velocidad. Descifrar Enigma ayudó a acortar la guerra y dio origen a la informática moderna."],"dato":"Los alemanes cometían fallos humanos: mensajes siempre terminados en la misma fórmula. Esas rutinas fueron la grieta por donde entraron los aliados."},
+  {"id":"clavepublica","tipo":"dh","epoca":"1976","titulo":"La gran idea: claves públicas","texto":["Hasta entonces había un problema: para usar un secreto, ambos debían conocer antes la clave. Pero ¿cómo se la pasas sin que nadie la vea?","Diffie y Hellman encontraron la solución: unas operaciones fáciles en un sentido y casi imposibles de deshacer. Cada persona elige un número secreto, publican un resultado y llegan a la misma clave sin enviarla jamás. Pruébalo con números pequeños."],"dato":"Un año después nació RSA, que permite que cualquiera te envíe un mensaje cerrado que solo tú puedes abrir. Así funciona el candado de las webs seguras."},
+  {"id":"hoy","tipo":"info","epoca":"Hoy y mañana","titulo":"Criptografía en tu vida diaria","texto":["Cuando ves el candado en el navegador, tu móvil y el servidor hacen un truco como el de Diffie-Hellman y luego cifran todo con una clave compartida. Lo mismo ocurre en mensajería, pagos y bitcoin.","La amenaza del futuro son los ordenadores cuánticos, que podrían romper parte de la criptografía actual. Ya se diseñan algoritmos “poscuánticos” para estar preparados."],"dato":"La lección de 4.000 años: todo cifrado parece seguro hasta que alguien encuentra su punto débil. Por eso los buenos sistemas son públicos y se someten a ataques abiertos."}
+ ]
+}
+</script>
+
+<script>
+const D = JSON.parse(document.getElementById('datos').textContent);
+const S = D.diapositivas, A = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+const clean = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase();
+const $ = (r, q) => r.querySelector(q);
+const shift = (s, n) => clean(s).replace(/[A-Z]/g, c => A[(A.indexOf(c) + n % 26 + 26) % 26]);
+let cur = 0;
+
+const widgets = {
+ escitala(r){
+  r.innerHTML = `<div class="panel"><h3>Prueba la escítala</h3>
+  <label for="t">Mensaje</label><input type="text" id="t" value="Ataca al amanecer">
+  <label for="n">Filas del palo: <b id="nv">3</b></label><input type="range" id="n" min="2" max="6" value="3">
+  <div class="scroll"><table class="grid" id="g"></table></div>
+  <p style="margin:8px 0 0">Mensaje que lee quien no tiene el palo:</p><div class="out" id="o"></div></div>`;
+  const run = () => {
+   const n = +$(r,'#n').value; $(r,'#nv').textContent = n;
+   let t = clean($(r,'#t').value).replace(/[^A-Z]/g,'');
+   const w = Math.max(1, Math.ceil(t.length / n)); t = t.padEnd(w * n, 'X');
+   let h = '', o = '';
+   for (let i = 0; i < n; i++){ h += '<tr>'; for (let j = 0; j < w; j++) h += `<td>${t[i*w+j]}</td>`; h += '</tr>'; }
+   for (let j = 0; j < w; j++) for (let i = 0; i < n; i++) o += t[i*w+j];
+   $(r,'#g').innerHTML = h; $(r,'#o').textContent = o;
+  };
+  r.addEventListener('input', run); run();
+ },
+ cesar(r){
+  r.innerHTML = `<div class="panel"><h3>Cifra como César</h3>
+  <label for="t">Mensaje</label><input type="text" id="t" value="Veni vidi vici">
+  <label for="n">Pasos: <b id="nv">3</b></label><input type="range" id="n" min="0" max="25" value="3">
+  <p style="margin:8px 0 0" id="eq"></p><div class="out" id="o"></div></div>`;
+  const run = () => {
+   const n = +$(r,'#n').value; $(r,'#nv').textContent = n;
+   $(r,'#o').textContent = shift($(r,'#t').value, n);
+   $(r,'#eq').textContent = `Con ${n} pasos, la A se convierte en ${A[n]} y la B en ${A[(n+1)%26]}.`;
+  };
+  r.addEventListener('input', run); run();
+ },
+ frecuencias(r){
+  const secreto = shift('Los espias de la ciudad enviaban mensajes secretos que nadie podia leer sin conocer la clave. Pero la escritura esconde habitos y las letras mas comunes delatan el secreto', 7);
+  r.innerHTML = `<div class="panel"><h3>Mensaje interceptado</h3><div class="out" id="c"></div>
+  <p style="margin:8px 0 0">Frecuencia de cada letra (la más repetida en naranja):</p>
+  <div class="bars" id="b"></div><div style="height:22px"></div>
+  <button id="go">Suponer que la más común es la E</button> <button class="ghost" id="rs">Reiniciar</button>
+  <div class="out" id="d" style="margin-top:12px">Pulsa el botón para intentar descifrarlo.</div></div>`;
+  const cnt = {}; A.split('').forEach(l => cnt[l] = 0);
+  secreto.replace(/[A-Z]/g, c => cnt[c]++);
+  const max = Math.max(...Object.values(cnt)), top = A[Object.values(cnt).indexOf(max)];
+  $(r,'#c').textContent = secreto;
+  $(r,'#b').innerHTML = A.split('').map(l => `<div class="${l===top?'top':''}" style="height:${cnt[l]/max*100}%"><span>${l}</span></div>`).join('');
+  $(r,'#go').onclick = () => {
+   const k = (A.indexOf(top) - 4 + 26) % 26;
+   $(r,'#d').textContent = shift(secreto, -k);
+  };
+  $(r,'#rs').onclick = () => $(r,'#d').textContent = 'Pulsa el botón para intentar descifrarlo.';
+ },
+ vigenere(r){
+  r.innerHTML = `<div class="panel"><h3>Cifra con una palabra clave</h3>
+  <label for="t">Mensaje</label><input type="text" id="t" value="Aaaaaaaa">
+  <label for="k">Clave (solo letras)</label><input type="text" id="k" value="sol">
+  <div class="out" id="o"></div>
+  <p style="margin:8px 0 0">Prueba a escribir muchas “A” seguidas: salen letras distintas, no se repite la misma.</p></div>`;
+  const run = () => {
+   const k = clean($(r,'#k').value).replace(/[^A-Z]/g,'') || 'A'; let i = 0;
+   $(r,'#o').textContent = clean($(r,'#t').value).replace(/[A-Z]/g, c => A[(A.indexOf(c) + A.indexOf(k[i++ % k.length])) % 26]);
+  };
+  r.addEventListener('input', run); run();
+ },
+ dh(r){
+  r.innerHTML = `<div class="panel"><h3>Dos personas, un secreto compartido</h3>
+  <p style="margin:0">Números públicos que todo el mundo ve: <span class="tag">p = 23</span><span class="tag">g = 5</span></p>
+  <div class="row"><div><label for="a">Secreto de Ana: <b id="av">6</b></label><input type="range" id="a" min="1" max="15" value="6"><div>Ana publica: <span class="big" id="A"></span></div></div>
+  <div><label for="b">Secreto de Beto: <b id="bv">15</b></label><input type="range" id="b" min="1" max="15" value="15"><div>Beto publica: <span class="big" id="B"></span></div></div></div>
+  <p>Ana calcula: <b id="sa" class="big"></b> &nbsp; Beto calcula: <b id="sb" class="big"></b></p>
+  <p id="msg" style="margin:0"></p></div>`;
+  const pw = (g, e, p) => { let r = 1; for (let i = 0; i < e; i++) r = r * g % p; return r; };
+  const run = () => {
+   const a = +$(r,'#a').value, b = +$(r,'#b').value;
+   $(r,'#av').textContent = a; $(r,'#bv').textContent = b;
+   const PA = pw(5,a,23), PB = pw(5,b,23), sa = pw(PB,a,23), sb = pw(PA,b,23);
+   $(r,'#A').textContent = PA; $(r,'#B').textContent = PB;
+   $(r,'#sa').textContent = sa; $(r,'#sb').textContent = sb;
+   $(r,'#msg').textContent = `Los dos obtienen ${sa} sin haberlo enviado nunca. Un espía solo ve 23, 5, ${PA} y ${PB}. Con números gigantes, deducir el secreto es casi imposible.`;
+  };
+  r.addEventListener('input', run); run();
+ }
+};
+
+function show(i){
+ cur = Math.max(0, Math.min(S.length - 1, i));
+ const s = S[cur], m = document.getElementById('main');
+ m.innerHTML = `<section class="slide"><span class="era">${s.epoca}</span><h1>${s.titulo}</h1>
+ ${s.texto.map(t => `<p>${t}</p>`).join('')}<div id="w"></div>
+ <button class="ghost" id="fb" style="margin-top:14px" aria-expanded="false">Dato curioso</button>
+ <div class="fact" id="f">${s.dato}</div></section>`;
+ m.scrollTop = 0;
+ if (widgets[s.tipo]) widgets[s.tipo](document.getElementById('w'));
+ document.getElementById('fb').onclick = e => {
+  const f = document.getElementById('f'); const o = f.classList.toggle('open');
+  e.target.setAttribute('aria-expanded', o);
+ };
+ document.getElementById('prog').style.width = ((cur + 1) / S.length * 100) + '%';
+ document.getElementById('count').textContent = (cur + 1) + ' / ' + S.length;
+ document.querySelectorAll('.dots button').forEach((b, j) => b.classList.toggle('on', j === cur));
+ document.getElementById('prev').disabled = cur === 0;
+ document.getElementById('next').textContent = cur === S.length - 1 ? 'Volver al inicio' : 'Siguiente';
+}
+document.getElementById('dots').innerHTML = S.map((s, i) => `<button aria-label="Ir a: ${s.titulo}"></button>`).join('');
+document.querySelectorAll('.dots button').forEach((b, i) => b.onclick = () => show(i));
+document.getElementById('prev').onclick = () => show(cur - 1);
+document.getElementById('next').onclick = () => show(cur === S.length - 1 ? 0 : cur + 1);
+document.addEventListener('keydown', e => {
+ if (/INPUT|TEXTAREA/.test(e.target.tagName)) return;
+ if (e.key === 'ArrowRight') show(cur + 1);
+ if (e.key === 'ArrowLeft') show(cur - 1);
+});
+show(0);
+</script>
+</body>
+</html>
