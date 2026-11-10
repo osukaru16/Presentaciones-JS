@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Piensa antes de programar</title>
+<style>
+:root{--bg:#f6f7fb;--fg:#1c2033;--muted:#5b6280;--card:#fff;--line:#d9dcea;--accent:#4f46e5;--accent2:#0ea5a4;--hl:#fde68a;--hlfg:#1c2033;--code:#eef0f8;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1220;--fg:#e8eaf6;--muted:#9aa1c4;--card:#181c31;--line:#2b3052;--accent:#8b86ff;--accent2:#2dd4bf;--hl:#facc15;--hlfg:#14172a;--code:#12162a;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0f1220;--fg:#e8eaf6;--muted:#9aa1c4;--card:#181c31;--line:#2b3052;--accent:#8b86ff;--accent2:#2dd4bf;--hl:#facc15;--hlfg:#14172a;--code:#12162a;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--fg);font:17px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;display:flex;flex-direction:column;transition:background .3s,color .3s}
+header,footer{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 20px}
+header b{font-size:.95rem;color:var(--muted)}
+button{font:inherit;cursor:pointer;border:1px solid var(--line);background:var(--card);color:var(--fg);border-radius:10px;padding:8px 14px}
+button:hover{border-color:var(--accent)}
+button.p{background:var(--accent);color:#fff;border-color:var(--accent)}
+button:disabled{opacity:.4;cursor:default}
+main{flex:1;overflow-y:auto;padding:8px 20px 16px;display:flex}
+.slide{display:none;margin:auto;width:100%;max-width:980px;animation:in .4s}
+.slide.on{display:block}
+@keyframes in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+h1{font-size:clamp(2rem,6vw,3.4rem);line-height:1.1;margin:.2em 0}
+h2{font-size:clamp(1.5rem,4vw,2.2rem);margin:0 0 .4em}
+.sub{color:var(--muted);font-size:1.15rem}
+.grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));margin-top:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
+.card h3{margin:.3em 0;font-size:1.05rem}
+.card p{margin:0;color:var(--muted);font-size:.95rem}
+.shape{display:flex;align-items:center;justify-content:center;min-height:56px;padding:10px 22px;background:var(--accent);color:#fff;font-weight:600;text-align:center;font-size:.9rem}
+.terminal{border-radius:999px}
+.proceso{border-radius:6px}
+.entrada{clip-path:polygon(10% 0,100% 0,90% 100%,0 100%);padding:10px 34px}
+.decision{clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);min-height:86px;padding:10px 46px;background:var(--accent2)}
+.big{font-size:2.4rem;margin:0 0 .2em}
+.tag{display:inline-block;background:var(--code);border:1px solid var(--line);border-radius:999px;padding:2px 12px;font-size:.85rem;color:var(--muted)}
+.demo{display:grid;gap:18px;grid-template-columns:1fr 1fr;margin-top:14px}
+@media(max-width:760px){.demo{grid-template-columns:1fr}}
+.flow{display:flex;flex-direction:column;align-items:center;gap:4px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px}
+.arrow{color:var(--muted);line-height:1}
+.node .shape{transition:all .3s;opacity:.55}
+.node.act .shape{opacity:1;background:var(--hl);color:var(--hlfg);transform:scale(1.06)}
+.branch{display:flex;gap:18px;justify-content:center;align-items:flex-start}
+.branch>div{display:flex;flex-direction:column;align-items:center}
+.lbl{font-size:.8rem;color:var(--muted)}
+pre{margin:0;background:var(--code);border:1px solid var(--line);border-radius:14px;padding:12px 0;font:.92rem/1.7 ui-monospace,Consolas,monospace;overflow-x:auto}
+.ln{padding:0 16px;white-space:pre;border-left:4px solid transparent}
+.ln.act{background:var(--hl);color:var(--hlfg);border-left-color:var(--accent)}
+.ctrl{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:10px 0}
+input{font:inherit;width:90px;padding:8px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--fg)}
+.out{min-height:1.6em;font-weight:600;color:var(--accent2)}
+.cols{display:grid;gap:14px;grid-template-columns:1fr 1fr}
+@media(max-width:760px){.cols{grid-template-columns:1fr}}
+.bad{border-left:5px solid #ef4444}.good{border-left:5px solid #22c55e}
+.arq{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:14px}
+.arq .shape{border-radius:10px;background:var(--accent)}
+.bar{height:5px;background:var(--line);flex:1;border-radius:9px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent);width:0;transition:width .3s}
+footer span{font-size:.85rem;color:var(--muted);min-width:48px;text-align:center}
+</style>
+</head>
+<body>
+<header><b id="ttl"></b><button id="tema" aria-label="Cambiar entre modo diurno y nocturno">🌙 Modo noche</button></header>
+<main id="m"></main>
+<footer><button id="prev">← Anterior</button><div class="bar"><i id="pb"></i></div><span id="cnt"></span><button id="next" class="p">Siguiente →</button></footer>
+
+<script type="application/json" id="datos">
+{
+"titulo":"Piensa antes de programar",
+"slides":[
+{"tipo":"portada","emoji":"🧭","titulo":"Piensa antes de programar","subtitulo":"Diagramas de flujo y pseudocódigo: tu mapa antes de escribir código","nota":"Usa las flechas ← → del teclado o los botones de abajo"},
+{"tipo":"simbolos","titulo":"El diagrama de flujo: un mapa de tu programa","texto":"Es un dibujo que muestra paso a paso qué hace un programa. Cada forma tiene un significado y las flechas indican el orden.","simbolos":[
+{"clase":"terminal","forma":"Inicio / Fin","desc":"Marca dónde empieza y dónde termina el programa."},
+{"clase":"entrada","forma":"Entrada / Salida","desc":"Pedir un dato al usuario o mostrar un resultado."},
+{"clase":"proceso","forma":"Proceso","desc":"Una acción o cálculo: sumar, guardar, comparar…"},
+{"clase":"decision","forma":"Decisión","desc":"Una pregunta con dos caminos: Sí o No."}]},
+{"tipo":"pseudo","titulo":"El pseudocódigo: programar con tus propias palabras","texto":"Es una descripción de los pasos del programa escrita en lenguaje casi natural. No se ejecuta y no tiene reglas estrictas de sintaxis: solo importa que la lógica sea clara.","puntos":[
+{"e":"🗣️","t":"Se lee como una receta","d":"Si sabes explicar los pasos, sabes escribir pseudocódigo."},
+{"e":"🔓","t":"Independiente del lenguaje","d":"Sirve igual para Python, JavaScript, Java o C."},
+{"e":"🧩","t":"Usa pocas palabras clave","d":"INICIO, LEER, ESCRIBIR, SI…ENTONCES…SINO, MIENTRAS, PARA, FIN."}]},
+{"tipo":"demo","titulo":"Míralo en acción: ¿mayor de edad?","texto":"Escribe una edad y pulsa Ejecutar. Verás cómo se recorre el diagrama y qué línea del pseudocódigo se está cumpliendo.",
+"orden":["inicio","leer",{"d":"decision"},["si","no"],"fin"],
+"nodos":{
+"inicio":{"clase":"terminal","txt":"Inicio","l":[0]},
+"leer":{"clase":"entrada","txt":"Leer edad","l":[1]},
+"decision":{"clase":"decision","txt":"¿edad ≥ 18?","l":[2]},
+"si":{"clase":"entrada","txt":"“Eres mayor de edad”","l":[3],"et":"Sí"},
+"no":{"clase":"entrada","txt":"“Eres menor de edad”","l":[4,5],"et":"No"},
+"fin":{"clase":"terminal","txt":"Fin","l":[6,7]}},
+"pseudo":["INICIO","  LEER edad","  SI edad >= 18 ENTONCES","    ESCRIBIR “Eres mayor de edad”","  SINO","    ESCRIBIR “Eres menor de edad”","  FIN SI","FIN"]},
+{"tipo":"lista","titulo":"¿Por qué planificar antes de programar?","items":[
+{"e":"🐞","t":"Encuentras errores antes","d":"Es mucho más barato corregir una flecha en un dibujo que cien líneas de código."},
+{"e":"🧠","t":"Separas pensar de teclear","d":"Primero resuelves el problema; después solo lo traduces a un lenguaje."},
+{"e":"🤝","t":"Te entienden los demás","d":"Un diagrama lo entiende un compañero, un profesor o un cliente sin saber programar."},
+{"e":"🔁","t":"Lo reutilizas","d":"El mismo diagrama y pseudocódigo te sirven para escribir el programa en cualquier lenguaje."}]},
+{"tipo":"ia","titulo":"Hoy también se lo explicas a una IA","texto":"Las herramientas de IA escriben código, pero no adivinan lo que tienes en la cabeza. Quien sabe describir el flujo y la arquitectura de un proyecto obtiene resultados mucho mejores.",
+"malo":{"t":"Instrucción vaga","p":"“Hazme una app de tareas.”","d":"La IA tiene que inventarse todas las decisiones."},
+"bueno":{"t":"Instrucción con flujo","p":"“Inicio → el usuario escribe una tarea → ¿está vacía? Sí: muestra error. No: la guarda en la lista → muestra la lista. Usa 3 capas: interfaz, lógica y datos.”","d":"Tú decides el qué y el cómo; la IA lo construye."},
+"arq_t":"Ejemplo de arquitectura en capas","arq":["🖥️ Interfaz","⚙️ Lógica","🗄️ Datos"]},
+{"tipo":"cierre","titulo":"Tu método en 4 pasos","pasos":["Entiende el problema","Dibuja el diagrama de flujo","Escribe el pseudocódigo","Programa (tú o con ayuda de IA)"],"reto":"Reto: dibuja el diagrama y escribe el pseudocódigo de “decidir si un número es par o impar” antes de escribir una sola línea de código."}
+]}
+</script>
+
+<script>
+const D=JSON.parse(document.getElementById('datos').textContent);
+const m=document.getElementById('m'),root=document.documentElement;
+let cur=0,timers=[];
+document.getElementById('ttl').textContent=D.titulo;
+
+const R={
+portada:s=>`<div style="text-align:center"><div class="big">${s.emoji}</div><h1>${s.titulo}</h1><p class="sub">${s.subtitulo}</p><span class="tag">${s.nota}</span></div>`,
+simbolos:s=>`<h2>${s.titulo}</h2><p class="sub">${s.texto}</p><div class="grid">${s.simbolos.map(x=>`<div class="card"><div class="shape ${x.clase}">${x.forma}</div><p style="margin-top:10px">${x.desc}</p></div>`).join('')}</div>`,
+pseudo:s=>`<h2>${s.titulo}</h2><p class="sub">${s.texto}</p><div class="grid">${s.puntos.map(x=>`<div class="card"><div class="big" style="font-size:1.8rem">${x.e}</div><h3>${x.t}</h3><p>${x.d}</p></div>`).join('')}</div>`,
+lista:s=>`<h2>${s.titulo}</h2><div class="grid">${s.items.map(x=>`<div class="card"><div class="big" style="font-size:1.8rem">${x.e}</div><h3>${x.t}</h3><p>${x.d}</p></div>`).join('')}</div>`,
+ia:s=>`<h2>${s.titulo}</h2><p class="sub">${s.texto}</p><div class="cols" style="margin-top:14px"><div class="card bad"><h3>❌ ${s.malo.t}</h3><p><i>${s.malo.p}</i></p><p style="margin-top:8px">${s.malo.d}</p></div><div class="card good"><h3>✅ ${s.bueno.t}</h3><p><i>${s.bueno.p}</i></p><p style="margin-top:8px">${s.bueno.d}</p></div></div><p class="sub" style="margin:14px 0 0">${s.arq_t}</p><div class="arq">${s.arq.map((a,i)=>(i?'<span class="arrow">→</span>':'')+`<div class="shape">${a}</div>`).join('')}</div>`,
+cierre:s=>`<h2>${s.titulo}</h2><div class="grid">${s.pasos.map((p,i)=>`<div class="card"><div class="big" style="font-size:1.8rem;color:var(--accent)">${i+1}</div><h3>${p}</h3></div>`).join('')}</div><div class="card" style="margin-top:16px;border-left:5px solid var(--accent2)">${s.reto}</div>`,
+demo:s=>{
+const nd=id=>{const n=s.nodos[id];return `<div class="node" data-id="${id}">${n.et?`<div class="lbl">${n.et}</div>`:''}<div class="shape ${n.clase}">${n.txt}</div></div>`};
+const ar='<div class="arrow">↓</div>';
+const fl=s.orden.map(o=>Array.isArray(o)?`<div class="branch">${o.map(nd).join('')}</div>`:nd(typeof o==='string'?o:o.d)).join(ar);
+return `<h2>${s.titulo}</h2><p class="sub">${s.texto}</p><div class="ctrl"><label>Edad: <input id="edad" type="number" value="20" min="0" max="120"></label><button class="p" id="run">▶ Ejecutar</button><span class="out" id="out"></span></div><div class="demo"><div class="flow">${fl}</div><pre>${s.pseudo.map((l,i)=>`<div class="ln" data-i="${i}">${l}</div>`).join('')}</pre></div>`}
+};
+m.innerHTML=D.slides.map((s,i)=>`<section class="slide" id="s${i}">${R[s.tipo](s)}</section>`).join('');
+
+function clearDemo(){timers.forEach(clearTimeout);timers=[];m.querySelectorAll('.act').forEach(e=>e.classList.remove('act'));const o=document.getElementById('out');if(o)o.textContent=''}
+function runDemo(){
+const s=D.slides.find(x=>x.tipo==='demo'),v=parseFloat(document.getElementById('edad').value);
+if(isNaN(v))return;clearDemo();
+const ruta=['inicio','leer','decision',v>=18?'si':'no','fin'];
+ruta.forEach((id,k)=>timers.push(setTimeout(()=>{
+m.querySelectorAll('.act').forEach(e=>e.classList.remove('act'));
+m.querySelector(`.node[data-id="${id}"]`).classList.add('act');
+s.nodos[id].l.forEach(i=>m.querySelector(`.ln[data-i="${i}"]`).classList.add('act'));
+if(id==='si'||id==='no')document.getElementById('out').textContent=s.nodos[id].txt;
+},k*800)));
+}
+document.getElementById('run').onclick=runDemo;
+
+function go(n){
+cur=Math.max(0,Math.min(D.slides.length-1,n));clearDemo();
+m.querySelectorAll('.slide').forEach((e,i)=>e.classList.toggle('on',i===cur));
+document.getElementById('pb').style.width=((cur+1)/D.slides.length*100)+'%';
+document.getElementById('cnt').textContent=(cur+1)+' / '+D.slides.length;
+document.getElementById('prev').disabled=cur===0;
+document.getElementById('next').disabled=cur===D.slides.length-1;
+m.scrollTop=0;
+if(location.hash!=='#d'+(cur+1))history.replaceState(null,'','#d'+(cur+1));
+}
+document.getElementById('prev').onclick=()=>go(cur-1);
+document.getElementById('next').onclick=()=>go(cur+1);
+document.addEventListener('keydown',e=>{if(e.target.tagName==='INPUT')return;if(e.key==='ArrowRight'||e.key===' ')go(cur+1);if(e.key==='ArrowLeft')go(cur-1)});
+function fromHash(){const n=parseInt((location.hash.match(/^#d(\d+)$/)||[])[1]);go(isNaN(n)?0:n-1)}
+window.addEventListener('hashchange',fromHash);
+
+const btn=document.getElementById('tema');
+function oscuro(){const t=root.dataset.theme;return t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches}
+function pintaBtn(){btn.textContent=oscuro()?'☀️ Modo día':'🌙 Modo noche'}
+try{const t=localStorage.getItem('tema');if(t)root.dataset.theme=t}catch(e){}
+btn.onclick=()=>{const t=oscuro()?'light':'dark';root.dataset.theme=t;try{localStorage.setItem('tema',t)}catch(e){}pintaBtn()};
+pintaBtn();fromHash();
+</script>
+</body>
+</html>
