@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Arquitectura cliente-servidor</title>
+<style>
+:root{--bg:#f6f7fb;--sf:#fff;--tx:#1b1f2a;--mt:#5b6475;--ac:#4f46e5;--ac2:#06b6d4;--bd:#e2e5ee;--code:#0f172a;--codetx:#e2e8f0;--ok:#16a34a;--ko:#dc2626;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1117;--sf:#171b24;--tx:#eef0f6;--mt:#98a2b8;--ac:#818cf8;--ac2:#22d3ee;--bd:#2a3040;--code:#080b10;--ok:#4ade80;--ko:#f87171}}
+:root[data-theme="dark"]{--bg:#0e1117;--sf:#171b24;--tx:#eef0f6;--mt:#98a2b8;--ac:#818cf8;--ac2:#22d3ee;--bd:#2a3040;--code:#080b10;--ok:#4ade80;--ko:#f87171}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--tx);font:17px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;display:flex;flex-direction:column;overflow:hidden}
+#bar{height:4px;background:var(--bd)}#bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--ac),var(--ac2));transition:width .4s}
+#stage{flex:1;position:relative;overflow:hidden}
+.slide{position:absolute;inset:0;padding:clamp(18px,4vw,56px) clamp(18px,7vw,110px);overflow-y:auto;opacity:0;transform:translateX(40px);pointer-events:none;transition:.4s}
+.slide.on{opacity:1;transform:none;pointer-events:auto}.slide.prev{transform:translateX(-40px)}
+h1{font-size:clamp(30px,6vw,64px);line-height:1.1;margin:0 0 12px}
+h2{font-size:clamp(24px,3.6vw,40px);margin:0 0 6px}
+.sub{color:var(--mt);font-size:1.15em;margin:0 0 22px}
+.kick{color:var(--ac);font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-size:.75em}
+.cover{display:flex;flex-direction:column;justify-content:center;min-height:100%}
+.cover h1{background:linear-gradient(90deg,var(--ac),var(--ac2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+.card{background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:16px 18px;cursor:pointer;transition:.2s;text-align:left;color:inherit;font:inherit}
+.card:hover,.card.sel{border-color:var(--ac);transform:translateY(-3px);box-shadow:0 8px 24px rgba(79,70,229,.15)}
+.card b{display:block;margin-bottom:4px}.card span{color:var(--mt);font-size:.92em}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.tab{background:var(--sf);border:1px solid var(--bd);color:var(--tx);padding:8px 16px;border-radius:99px;cursor:pointer;font:inherit;font-weight:600}
+.tab.on{background:var(--ac);border-color:var(--ac);color:#fff}
+.panel{background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:20px;animation:up .3s}
+@keyframes up{from{opacity:0;transform:translateY(8px)}}
+pre{background:var(--code);color:var(--codetx);padding:14px 16px;border-radius:10px;overflow-x:auto;font:14px/1.5 ui-monospace,Menlo,Consolas,monospace;margin:12px 0 0}
+.tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}.tags em{font-style:normal;font-size:.8em;background:var(--bg);border:1px solid var(--bd);border-radius:99px;padding:2px 10px;color:var(--mt)}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+.col{background:var(--sf);border:1px solid var(--bd);border-top:4px solid var(--ac);border-radius:14px;padding:18px}.col:nth-child(2){border-top-color:var(--ac2)}
+.col h3{margin:0 0 8px}.col ul{padding-left:20px;margin:0}
+.flow{position:relative;display:flex;justify-content:space-between;margin:34px 6% 30px}
+.flow:before{content:"";position:absolute;left:5%;right:5%;top:50%;border-top:3px dashed var(--bd)}
+.node{position:relative;z-index:1;background:var(--sf);border:2px solid var(--bd);border-radius:14px;padding:14px 18px;font-weight:700;text-align:center;transition:.3s;min-width:90px}
+.node.hot{border-color:var(--ac);box-shadow:0 0 0 5px rgba(79,70,229,.18)}
+.pkt{position:absolute;top:50%;width:26px;height:26px;margin:-13px 0 0 -13px;border-radius:50%;background:var(--ac2);transition:left .8s;z-index:2;box-shadow:0 0 14px var(--ac2)}
+.ctrl{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:12px}
+.btn{background:var(--ac);color:#fff;border:0;border-radius:10px;padding:9px 18px;font:inherit;font-weight:600;cursor:pointer}
+.btn.ghost{background:var(--sf);color:var(--tx);border:1px solid var(--bd)}
+.q{background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:16px;margin-bottom:12px}
+.q p{margin:0 0 8px;font-weight:700}.opt{display:block;width:100%;text-align:left;background:var(--bg);border:1px solid var(--bd);color:var(--tx);border-radius:8px;padding:8px 12px;margin-top:6px;font:inherit;cursor:pointer}
+.opt.ok{border-color:var(--ok);color:var(--ok)}.opt.ko{border-color:var(--ko);color:var(--ko)}
+#nav{display:flex;align-items:center;gap:10px;padding:10px 16px;border-top:1px solid var(--bd);background:var(--sf)}
+#nav button{background:var(--bg);color:var(--tx);border:1px solid var(--bd);border-radius:8px;padding:6px 12px;cursor:pointer;font:inherit}
+#dots{flex:1;display:flex;gap:6px;justify-content:center;flex-wrap:wrap}
+#dots i{width:9px;height:9px;border-radius:50%;background:var(--bd);cursor:pointer}#dots i.on{background:var(--ac);transform:scale(1.4)}
+#cnt{color:var(--mt);font-size:.85em;min-width:48px;text-align:right}
+</style>
+</head>
+<body>
+<div id="bar"><i></i></div>
+<main id="stage"></main>
+<nav id="nav"><button id="b-prev" aria-label="Anterior">←</button><div id="dots"></div><span id="cnt"></span><button id="b-theme" aria-label="Tema">◐</button><button id="b-fs" aria-label="Pantalla completa">⛶</button><button id="b-next" aria-label="Siguiente">→</button></nav>
+
+<!-- ============================================================
+  DATOS DE LA PRESENTACIÓN (edita solo este bloque JSON)
+  Tipos de diapositiva: portada, lista, flujo, tabs, comparar, quiz
+  Para añadir una diapositiva, copia un objeto de "diapositivas" y cambia su contenido.
+  Si lo guardas como datos.json, cambia el script del final por: fetch('datos.json')
+============================================================ -->
+<script type="application/json" id="datos">
+{
+  "titulo": "Arquitectura cliente-servidor",
+  "diapositivas": [
+    {"tipo":"portada","kicker":"Desarrollo web","titulo":"Arquitectura cliente-servidor","subtitulo":"Lenguajes de cada lado y bases de datos relacionales y no relacionales","nota":"Usa las flechas del teclado o los botones para navegar"},
+
+    {"tipo":"lista","titulo":"¿Qué es la arquitectura cliente-servidor?","subtitulo":"Pulsa en cada tarjeta para destacarla","items":[
+      {"t":"Cliente","d":"Quien solicita servicios: navegador, app móvil o escritorio. Muestra la interfaz y captura las acciones del usuario."},
+      {"t":"Servidor","d":"Quien atiende las peticiones: ejecuta la lógica de negocio, valida, autentica y accede a los datos."},
+      {"t":"Protocolo","d":"Las reglas de comunicación. En la web, HTTP/HTTPS con peticiones y respuestas, normalmente en formato JSON."},
+      {"t":"Ventajas","d":"Datos centralizados, seguridad, mantenimiento sencillo y posibilidad de escalar el servidor de forma independiente."}
+    ]},
+
+    {"tipo":"flujo","titulo":"El ciclo petición-respuesta","subtitulo":"Pulsa «Siguiente paso» para ver cómo viaja la información","nodos":["Cliente","Servidor","Base de datos"],"pasos":[
+      {"de":0,"a":1,"t":"1. El cliente envía una petición","d":"El usuario pulsa un botón y el navegador lanza GET /api/productos mediante HTTP."},
+      {"de":1,"a":2,"t":"2. El servidor consulta los datos","d":"La lógica del servidor valida la petición y ejecuta una consulta en la base de datos."},
+      {"de":2,"a":1,"t":"3. La base de datos devuelve el resultado","d":"Se obtienen las filas o documentos solicitados."},
+      {"de":1,"a":0,"t":"4. El servidor responde al cliente","d":"Se envía una respuesta con código 200 y los datos en JSON. El cliente los pinta en pantalla."}
+    ]},
+
+    {"tipo":"tabs","titulo":"Arquitectura por capas","subtitulo":"Cómo se organiza una aplicación","tabs":[
+      {"t":"2 capas","d":"El cliente habla directamente con la base de datos. Es simple, pero poco seguro y difícil de escalar.","tags":["Cliente","Base de datos"]},
+      {"t":"3 capas","d":"Separa presentación, lógica de negocio y datos. Es el modelo más habitual en aplicaciones web.","tags":["Presentación","Lógica","Datos"],"codigo":"Navegador  →  API (Node, Java, Python...)  →  Base de datos"},
+      {"t":"Microservicios","d":"La aplicación se divide en servicios pequeños e independientes que se comunican por red. Escalan mejor, pero son más complejos de operar.","tags":["Usuarios","Pagos","Catálogo","API Gateway"]}
+    ]},
+
+    {"tipo":"tabs","titulo":"Lenguajes en el cliente (front-end)","subtitulo":"Se ejecutan en el navegador del usuario","tabs":[
+      {"t":"HTML","d":"Define la estructura y el contenido de la página.","tags":["Estructura","Semántica"],"codigo":"<button id='saludo'>Pulsa aquí</button>"},
+      {"t":"CSS","d":"Controla el aspecto visual: colores, tipografías y diseño adaptable.","tags":["Estilos","Responsive"],"codigo":"button {\n  background: #4f46e5;\n  border-radius: 8px;\n}"},
+      {"t":"JavaScript","d":"El único lenguaje nativo del navegador. Añade interactividad y se comunica con el servidor.","tags":["Interactividad","fetch","React / Vue"],"codigo":"const res = await fetch('/api/productos');\nconst datos = await res.json();\nconsole.log(datos);"},
+      {"t":"TypeScript","d":"JavaScript con tipos estáticos. Se compila a JavaScript y reduce errores en proyectos grandes.","tags":["Tipado","Se compila a JS"],"codigo":"function suma(a: number, b: number): number {\n  return a + b;\n}"}
+    ]},
+
+    {"tipo":"tabs","titulo":"Lenguajes en el servidor (back-end)","subtitulo":"Se ejecutan en el servidor y el usuario no ve su código","tabs":[
+      {"t":"Node.js","d":"JavaScript en el servidor. Permite usar el mismo lenguaje en cliente y servidor.","tags":["Express","Asíncrono"],"codigo":"app.get('/api/hola', (req, res) => {\n  res.json({ mensaje: 'Hola' });\n});"},
+      {"t":"Python","d":"Sintaxis clara y muy usado con datos e inteligencia artificial.","tags":["Django","Flask","FastAPI"],"codigo":"@app.get('/api/hola')\ndef hola():\n    return {'mensaje': 'Hola'}"},
+      {"t":"Java","d":"Robusto y muy extendido en grandes empresas y banca.","tags":["Spring Boot","Tipado fuerte"],"codigo":"@GetMapping('/api/hola')\npublic Map<String,String> hola() {\n  return Map.of('mensaje', 'Hola');\n}"},
+      {"t":"PHP","d":"Pensado para la web. Es la base de WordPress y muchos sitios existentes.","tags":["Laravel","WordPress"],"codigo":"<?php\necho json_encode(['mensaje' => 'Hola']);"},
+      {"t":"C#","d":"Lenguaje de Microsoft para la plataforma .NET. Muy productivo y de alto rendimiento.","tags":[".NET","ASP.NET Core"],"codigo":"app.MapGet('/api/hola', () => new { mensaje = 'Hola' });"}
+    ]},
+
+    {"tipo":"lista","titulo":"Bases de datos: dónde viven los datos","subtitulo":"Una base de datos almacena información de forma persistente y organizada","items":[
+      {"t":"Relacionales (SQL)","d":"Datos en tablas con filas y columnas, con relaciones entre ellas y esquema fijo."},
+      {"t":"No relacionales (NoSQL)","d":"Modelos flexibles: documentos, clave-valor, columnas o grafos. Esquema dinámico."},
+      {"t":"ACID","d":"Atomicidad, consistencia, aislamiento y durabilidad: garantías de las transacciones en bases SQL."},
+      {"t":"¿Cuál elegir?","d":"Depende de la estructura de los datos, la consistencia necesaria y el volumen que se espera."}
+    ]},
+
+    {"tipo":"tabs","titulo":"Bases de datos relacionales","subtitulo":"Tablas, claves y lenguaje SQL","tabs":[
+      {"t":"Concepto","d":"Los datos se organizan en tablas. Una clave primaria identifica cada fila y las claves foráneas relacionan unas tablas con otras.","tags":["MySQL","PostgreSQL","SQL Server","Oracle","SQLite"]},
+      {"t":"Crear tabla","d":"Se define un esquema con tipos de datos y restricciones.","codigo":"CREATE TABLE usuarios (\n  id INT PRIMARY KEY,\n  nombre VARCHAR(50) NOT NULL,\n  email VARCHAR(80) UNIQUE\n);"},
+      {"t":"Consultar","d":"SELECT recupera datos y JOIN combina varias tablas.","codigo":"SELECT u.nombre, p.total\nFROM usuarios u\nJOIN pedidos p ON p.usuario_id = u.id\nWHERE p.total > 100;"}
+    ]},
+
+    {"tipo":"tabs","titulo":"Bases de datos no relacionales","subtitulo":"Cuatro grandes familias","tabs":[
+      {"t":"Documentos","d":"Guardan documentos JSON flexibles. Cada documento puede tener campos distintos.","tags":["MongoDB","CouchDB"],"codigo":"{\n  'nombre': 'Ana',\n  'email': 'ana@mail.com',\n  'pedidos': [{ 'total': 120 }]\n}"},
+      {"t":"Clave-valor","d":"Parejas clave y valor, extremadamente rápidas. Ideales para caché y sesiones.","tags":["Redis","DynamoDB"],"codigo":"SET sesion:42 'ana'\nGET sesion:42"},
+      {"t":"Columnas","d":"Organizan los datos por columnas. Diseñadas para enormes volúmenes distribuidos.","tags":["Cassandra","HBase"]},
+      {"t":"Grafos","d":"Nodos y relaciones. Perfectas para redes sociales y recomendaciones.","tags":["Neo4j"],"codigo":"MATCH (a:Persona)-[:AMIGO_DE]->(b)\nRETURN b.nombre"}
+    ]},
+
+    {"tipo":"comparar","titulo":"SQL frente a NoSQL","subtitulo":"No hay una opción mejor: depende del caso de uso","columnas":[
+      {"t":"Relacional (SQL)","puntos":["Esquema fijo y estructurado","Relaciones y JOIN potentes","Transacciones ACID","Escala sobre todo en vertical","Ideal para banca, ERP y facturación"]},
+      {"t":"No relacional (NoSQL)","puntos":["Esquema flexible","Datos anidados sin JOIN","Consistencia eventual en muchos casos","Escala fácilmente en horizontal","Ideal para big data, caché y tiempo real"]}
+    ]},
+
+    {"tipo":"quiz","titulo":"Comprueba lo aprendido","subtitulo":"Pulsa la respuesta que creas correcta","preguntas":[
+      {"p":"¿Qué lenguaje se ejecuta de forma nativa en el navegador?","o":["Java","JavaScript","PHP"],"c":1},
+      {"p":"¿Qué protocolo usa normalmente la web para comunicar cliente y servidor?","o":["HTTP","FTP","SMTP"],"c":0},
+      {"p":"¿Cuál de estas es una base de datos de documentos?","o":["PostgreSQL","Redis","MongoDB"],"c":2},
+      {"p":"¿Qué garantiza ACID en una base de datos?","o":["Transacciones fiables","Mayor velocidad de caché","Diseño visual"],"c":0}
+    ]},
+
+    {"tipo":"portada","kicker":"Conclusiones","titulo":"Gracias","subtitulo":"El cliente pide, el servidor procesa y la base de datos guarda. Elegir bien cada pieza es la clave.","nota":"¿Preguntas?"}
+  ]
+}
+</script>
+
+<script>
+const D = JSON.parse(document.getElementById('datos').textContent);
+const stage = document.getElementById('stage'), dots = document.getElementById('dots');
+let cur = 0;
+
+function h(tag, cls, txt, kids) {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (txt !== undefined && txt !== null) e.textContent = txt;
+  (kids || []).forEach(k => e.appendChild(k));
+  return e;
+}
+function head(s) {
+  const f = document.createDocumentFragment();
+  if (s.kicker) f.appendChild(h('div', 'kick', s.kicker));
+  f.appendChild(h(s.tipo === 'portada' ? 'h1' : 'h2', '', s.titulo));
+  if (s.subtitulo) f.appendChild(h('p', 'sub', s.subtitulo));
+  return f;
+}
+function tags(arr) { return arr && arr.length ? h('div', 'tags', null, arr.map(t => h('em', '', t))) : null; }
+
+const R = {
+  portada(s, el) {
+    el.classList.add('cover');
+    el.appendChild(head(s));
+    if (s.nota) el.appendChild(h('p', 'sub', s.nota));
+  },
+  lista(s, el) {
+    el.appendChild(head(s));
+    const g = h('div', 'grid');
+    s.items.forEach(i => {
+      const c = h('button', 'card', null, [h('b', '', i.t), h('span', '', i.d)]);
+      c.onclick = () => { g.querySelectorAll('.card').forEach(x => x.classList.remove('sel')); c.classList.add('sel'); };
+      g.appendChild(c);
+    });
+    el.appendChild(g);
+  },
+  tabs(s, el) {
+    el.appendChild(head(s));
+    const bar = h('div', 'tabs'), box = h('div');
+    const show = i => {
+      const t = s.tabs[i];
+      [...bar.children].forEach((b, j) => b.classList.toggle('on', j === i));
+      const p = h('div', 'panel', null, [h('b', '', t.t), h('p', '', t.d)]);
+      const tg = tags(t.tags); if (tg) p.appendChild(tg);
+      if (t.codigo) p.appendChild(h('pre', '', t.codigo));
+      box.replaceChildren(p);
+    };
+    s.tabs.forEach((t, i) => { const b = h('button', 'tab', t.t); b.onclick = () => show(i); bar.appendChild(b); });
+    el.append(bar, box); show(0);
+  },
+  comparar(s, el) {
+    el.appendChild(head(s));
+    el.appendChild(h('div', 'cols', null, s.columnas.map(c =>
+      h('div', 'col', null, [h('h3', '', c.t), h('ul', '', null, c.puntos.map(p => h('li', '', p)))]))));
+  },
+  flujo(s, el) {
+    el.appendChild(head(s));
+    const flow = h('div', 'flow'), pkt = h('div', 'pkt');
+    const nodes = s.nodos.map(n => h('div', 'node', n));
+    nodes.forEach(n => flow.appendChild(n)); flow.appendChild(pkt);
+    const info = h('div', 'panel'), prog = h('span', 'sub', '');
+    let k = -1;
+    const pos = i => (nodes[i].offsetLeft + nodes[i].offsetWidth / 2) + 'px';
+    const step = () => {
+      k = (k + 1) % s.pasos.length;
+      const p = s.pasos[k];
+      pkt.style.transition = 'none'; pkt.style.left = pos(p.de); void pkt.offsetWidth;
+      pkt.style.transition = ''; pkt.style.left = pos(p.a);
+      nodes.forEach((n, i) => n.classList.toggle('hot', i === p.de || i === p.a));
+      info.replaceChildren(h('b', '', p.t), h('p', '', p.d));
+      prog.textContent = (k + 1) + ' / ' + s.pasos.length;
+    };
+    const next = h('button', 'btn', 'Siguiente paso'); next.onclick = step;
+    el.append(flow, info, h('div', 'ctrl', null, [next, prog]));
+    el._init = () => { k = -1; step(); };
+  },
+  quiz(s, el) {
+    el.appendChild(head(s));
+    let score = 0, done = 0;
+    const res = h('p', 'sub', '');
+    s.preguntas.forEach(q => {
+      const box = h('div', 'q', null, [h('p', '', q.p)]);
+      let answered = false;
+      q.o.forEach((o, i) => {
+        const b = h('button', 'opt', o);
+        b.onclick = () => {
+          if (answered) return; answered = true; done++;
+          if (i === q.c) { b.classList.add('ok'); score++; } else { b.classList.add('ko'); box.children[q.c + 1].classList.add('ok'); }
+          if (done === s.preguntas.length) res.textContent = 'Resultado: ' + score + ' de ' + s.preguntas.length;
+        };
+        box.appendChild(b);
+      });
+      el.appendChild(box);
+    });
+    el.appendChild(res);
+  }
+};
+
+D.diapositivas.forEach((s, i) => {
+  const el = h('section', 'slide');
+  (R[s.tipo] || R.lista)(s, el);
+  stage.appendChild(el);
+  const d = h('i'); d.onclick = () => go(i); dots.appendChild(d);
+});
+const slides = [...stage.children];
+
+function go(n) {
+  n = Math.max(0, Math.min(slides.length - 1, n));
+  slides.forEach((s, i) => { s.classList.toggle('on', i === n); s.classList.toggle('prev', i < n); });
+  [...dots.children].forEach((d, i) => d.classList.toggle('on', i === n));
+  document.querySelector('#bar i').style.width = ((n + 1) / slides.length * 100) + '%';
+  document.getElementById('cnt').textContent = (n + 1) + ' / ' + slides.length;
+  cur = n;
+  if (slides[n]._init) slides[n]._init();
+}
+document.getElementById('b-prev').onclick = () => go(cur - 1);
+document.getElementById('b-next').onclick = () => go(cur + 1);
+document.getElementById('b-fs').onclick = () => document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen().catch(() => {});
+document.getElementById('b-theme').onclick = () => {
+  const r = document.documentElement, dark = getComputedStyle(r).getPropertyValue('--bg').trim() === '#0e1117';
+  r.dataset.theme = dark ? 'light' : 'dark';
+};
+document.addEventListener('keydown', e => {
+  if (['ArrowRight', 'PageDown', ' '].includes(e.key)) { e.preventDefault(); go(cur + 1); }
+  if (['ArrowLeft', 'PageUp'].includes(e.key)) go(cur - 1);
+  if (e.key === 'Home') go(0);
+  if (e.key === 'End') go(slides.length - 1);
+  if (e.key === 'f') document.getElementById('b-fs').click();
+});
+let tx = 0;
+stage.addEventListener('touchstart', e => tx = e.touches[0].clientX, { passive: true });
+stage.addEventListener('touchend', e => { const d = e.changedTouches[0].clientX - tx; if (Math.abs(d) > 60) go(cur + (d < 0 ? 1 : -1)); });
+document.title = D.titulo;
+go(0);
+</script>
+</body>
+</html>
