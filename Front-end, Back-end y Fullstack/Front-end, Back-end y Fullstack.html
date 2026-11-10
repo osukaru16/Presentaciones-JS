@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Front-end, Back-end y Fullstack</title>
+<style>
+:root{--bg:#f6f7fb;--card:#fff;--text:#1d2433;--muted:#5b6478;--accent:#4f46e5;--accent2:#0ea5e9;--border:#e1e5ef;--code-bg:#0f172a;--code-text:#e2e8f0;--front:#ec4899;--back:#10b981;--full:#f59e0b;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b1020;--card:#151b2e;--text:#eef1f8;--muted:#a3adc4;--accent:#818cf8;--accent2:#38bdf8;--border:#263049;--code-bg:#070b16;--code-text:#e2e8f0;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0b1020;--card:#151b2e;--text:#eef1f8;--muted:#a3adc4;--accent:#818cf8;--accent2:#38bdf8;--border:#263049;--code-bg:#070b16;--code-text:#e2e8f0;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.55;transition:background .3s,color .3s}
+.app{height:100%;display:flex;flex-direction:column;max-width:1000px;margin:0 auto;padding:0 16px}
+header,footer{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0}
+.brand{font-weight:700;color:var(--accent)}
+button{font:inherit;cursor:pointer;color:inherit}
+.icon-btn{background:var(--card);border:1px solid var(--border);border-radius:999px;padding:8px 14px;font-size:.9rem}
+.icon-btn:hover{border-color:var(--accent)}
+main{flex:1;overflow-y:auto;padding:8px 2px 16px}
+.slide{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:clamp(18px,4vw,40px);animation:in .35s ease;border-top:6px solid var(--c,var(--accent))}
+@keyframes in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.tag{display:inline-block;font-size:.8rem;font-weight:700;color:#fff;background:var(--c,var(--accent));padding:3px 12px;border-radius:999px;margin-bottom:10px}
+h1{font-size:clamp(1.7rem,5vw,2.8rem);margin:.2em 0}
+h2{font-size:clamp(1.4rem,4vw,2.1rem);margin:.1em 0 .4em}
+.icon{font-size:3rem}
+.sub{color:var(--muted);font-size:1.15rem}
+.analogy{background:color-mix(in srgb,var(--c,var(--accent)) 12%,transparent);border-left:4px solid var(--c,var(--accent));padding:12px 16px;border-radius:10px;margin:14px 0}
+ul.points{list-style:none;padding:0;margin:14px 0;display:grid;gap:10px}
+ul.points li{background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:10px 14px;display:flex;gap:10px}
+ul.points li span:first-child{font-size:1.3rem}
+.tabs{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 0}
+.tab{background:var(--bg);border:1px solid var(--border);border-radius:10px 10px 0 0;padding:7px 14px;font-weight:600;font-size:.9rem}
+.tab.on{background:var(--code-bg);color:var(--code-text);border-color:var(--code-bg)}
+pre{margin:0;background:var(--code-bg);color:var(--code-text);padding:16px;border-radius:0 12px 12px 12px;overflow-x:auto;font:.9rem/1.5 ui-monospace,Menlo,Consolas,monospace}
+.note{margin-top:10px;color:var(--muted)}
+.tablewrap{overflow-x:auto;margin-top:12px}
+table{border-collapse:collapse;width:100%;min-width:560px}
+th,td{border:1px solid var(--border);padding:10px 12px;text-align:left;vertical-align:top}
+th{background:var(--bg)}
+th.f{color:var(--front)}th.b{color:var(--back)}th.s{color:var(--full)}
+.nav{display:flex;gap:8px}
+.nav button{background:var(--accent);color:#fff;border:0;border-radius:12px;padding:10px 18px;font-weight:600}
+.nav button:disabled{opacity:.35;cursor:default}
+.dots{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.dot{width:10px;height:10px;border-radius:50%;border:0;padding:0;background:var(--border)}
+.dot.on{background:var(--accent);transform:scale(1.3)}
+@media (max-width:560px){.dots{display:none}footer{justify-content:space-between}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header><span class="brand">🧑‍💻 Aprende a programar</span><button class="icon-btn" id="theme" aria-label="Cambiar modo diurno o nocturno">🌙 Modo noche</button></header>
+  <main id="stage" aria-live="polite"></main>
+  <footer>
+    <div class="nav"><button id="prev">← Anterior</button></div>
+    <div class="dots" id="dots"></div>
+    <div class="nav"><button id="next">Siguiente →</button></div>
+  </footer>
+</div>
+
+<script type="application/json" id="data">
+{
+ "slides":[
+  {"icon":"🧑‍💻","tag":"Presentación","title":"Front-end, Back-end y Fullstack","sub":"¿Quién construye qué en una aplicación web?","points":[["🎯","Aprenderás qué hace cada tipo de programador"],["🧩","Verás ejemplos reales en varios lenguajes"],["⌨️","Usa las flechas del teclado o los botones para avanzar"]]},
+  {"icon":"🍽️","tag":"Para empezar","title":"Una app web es como un restaurante","analogy":"Imagina que pides comida: tú ves el comedor y el menú, pero alguien trabaja en la cocina sin que lo veas.","points":[["🪑","Front-end = el comedor: lo que ves y tocas (menú, mesas, decoración)"],["👨‍🍳","Back-end = la cocina: prepara todo lo que no ves (pedidos, recetas, despensa)"],["🧑‍🍳","Fullstack = alguien que sabe atender en sala y también cocinar"]]},
+  {"color":"--front","icon":"🎨","tag":"Front-end","title":"¿Qué es un programador front-end?","text":"Es quien construye la parte visible de una web o app: todo lo que el usuario ve, toca y usa en su navegador o móvil.","analogy":"Es el diseñador y decorador del comedor: hace que sea bonito, cómodo y fácil de usar.","points":[["🖱️","Botones, menús, formularios y animaciones"],["📱","Que la página se vea bien en móvil, tablet y ordenador"],["♿","Que cualquier persona pueda usarla (accesibilidad)"],["🛠️","Herramientas: HTML, CSS, JavaScript, TypeScript, React, Vue"]]},
+  {"color":"--front","icon":"💡","tag":"Front-end · Ejemplos","title":"Código front-end: estructura, estilo y acción","code":[
+    {"lang":"HTML","note":"HTML es el esqueleto: define qué hay en la página (títulos, botones, textos).","code":"<h1>Mi tienda</h1>\n<button id=\"comprar\">Comprar</button>"},
+    {"lang":"CSS","note":"CSS es la ropa: define colores, tamaños y posiciones.","code":"button {\n  background: green;\n  color: white;\n  border-radius: 8px;\n}"},
+    {"lang":"JavaScript","note":"JavaScript es el movimiento: hace que la página reaccione a lo que haces.","code":"const boton = document.getElementById(\"comprar\");\nboton.addEventListener(\"click\", () => {\n  alert(\"¡Gracias por tu compra!\");\n});"},
+    {"lang":"TypeScript","note":"TypeScript es JavaScript con tipos: ayuda a detectar errores antes de ejecutar.","code":"function sumar(a: number, b: number): number {\n  return a + b;\n}\nconsole.log(sumar(2, 3)); // 5"}]},
+  {"color":"--back","icon":"⚙️","tag":"Back-end","title":"¿Qué es un programador back-end?","text":"Es quien construye la parte invisible: el servidor, la lógica y la base de datos que hacen funcionar la aplicación.","analogy":"Es el chef de la cocina: recibe los pedidos, prepara todo y lo envía a la mesa correcta.","points":[["🗄️","Guarda y consulta datos en bases de datos"],["🔐","Gestiona usuarios, contraseñas y seguridad"],["🔌","Crea APIs: puertas por las que el front-end pide información"],["🛠️","Lenguajes: Python, JavaScript (Node.js), Java, PHP, C#, Go"]]},
+  {"color":"--back","icon":"🧪","tag":"Back-end · Ejemplos","title":"El mismo servidor en distintos lenguajes","code":[
+    {"lang":"Python","note":"Python (con Flask) es muy legible, ideal para empezar.","code":"from flask import Flask\napp = Flask(__name__)\n\n@app.route(\"/saludo\")\ndef saludo():\n    return {\"mensaje\": \"¡Hola desde Python!\"}"},
+    {"lang":"Node.js","note":"Node.js permite usar JavaScript también en el servidor.","code":"const express = require(\"express\");\nconst app = express();\n\napp.get(\"/saludo\", (req, res) => {\n  res.json({ mensaje: \"¡Hola desde Node.js!\" });\n});\napp.listen(3000);"},
+    {"lang":"PHP","note":"PHP es muy usado en la web (por ejemplo, WordPress).","code":"<?php\nheader(\"Content-Type: application/json\");\necho json_encode([\"mensaje\" => \"¡Hola desde PHP!\"]);"},
+    {"lang":"Java","note":"Java (con Spring) es muy común en grandes empresas.","code":"@RestController\npublic class SaludoController {\n  @GetMapping(\"/saludo\")\n  public String saludo() {\n    return \"¡Hola desde Java!\";\n  }\n}"},
+    {"lang":"SQL","note":"SQL es el lenguaje para hablar con las bases de datos.","code":"SELECT nombre, precio\nFROM productos\nWHERE precio < 20\nORDER BY precio ASC;"}]},
+  {"color":"--full","icon":"🧑‍🍳","tag":"Fullstack","title":"¿Qué es un programador fullstack?","text":"Es quien domina el front-end y el back-end: puede construir una aplicación completa, de la pantalla a la base de datos.","analogy":"Es quien atiende en sala y también cocina: entiende todo el recorrido del pedido.","points":[["🔄","Conecta lo que el usuario ve con los datos del servidor"],["🚀","Puede crear un proyecto entero por sí mismo"],["📚","Conoce un poco de todo, aunque suele tener una parte más fuerte"],["🛠️","Ejemplo de stack: React + Node.js + PostgreSQL"]]},
+  {"color":"--full","icon":"🔗","tag":"Fullstack · Ejemplo","title":"Un flujo completo: pedir y mostrar productos","text":"Pulsa en cada pestaña para seguir el viaje de los datos: el navegador los pide, el servidor responde y la base de datos los guarda.","code":[
+    {"lang":"1 · Front (JavaScript)","note":"El navegador pide los productos al servidor y los muestra.","code":"async function cargar() {\n  const resp = await fetch(\"/api/productos\");\n  const productos = await resp.json();\n  productos.forEach(p => {\n    document.body.innerHTML += `<p>${p.nombre}</p>`;\n  });\n}\ncargar();"},
+    {"lang":"2 · Back (Python)","note":"El servidor recibe la petición, consulta la base de datos y responde.","code":"@app.route(\"/api/productos\")\ndef productos():\n    filas = db.execute(\"SELECT nombre FROM productos\")\n    return jsonify([{\"nombre\": f[0]} for f in filas])"},
+    {"lang":"3 · Datos (SQL)","note":"La base de datos guarda la información de forma ordenada.","code":"CREATE TABLE productos (\n  id INTEGER PRIMARY KEY,\n  nombre TEXT,\n  precio REAL\n);\nINSERT INTO productos (nombre, precio)\nVALUES (\"Camiseta\", 15.5);"}]},
+  {"icon":"⚖️","tag":"Comparación","title":"Las tres figuras de un vistazo","table":{"head":["","Front-end","Back-end","Fullstack"],"rows":[["¿Qué hace?","Construye lo que el usuario ve","Construye la lógica y los datos","Hace las dos cosas"],["¿Dónde se ejecuta?","En el navegador o el móvil","En el servidor","En ambos sitios"],["Lenguajes típicos","HTML, CSS, JavaScript, TypeScript","Python, Java, PHP, Node.js, SQL","Los de las dos columnas"],["Pregunta clave","¿Es bonito y fácil de usar?","¿Funciona, es rápido y seguro?","¿Todo encaja de principio a fin?"],["Metáfora","El comedor","La cocina","Sala y cocina"]]}},
+  {"icon":"🏁","tag":"Resumen","title":"¿Con qué te quedas?","points":[["🎨","Front-end: lo que se ve y se toca"],["⚙️","Back-end: lo que se esconde y trabaja por detrás"],["🧑‍🍳","Fullstack: ambas partes juntas"],["🌱","Consejo: empieza con HTML, CSS y JavaScript; cuando te sientas cómodo, prueba Python o Node.js"]],"analogy":"No hay un camino mejor que otro. Elige el que más te divierta, ¡y sigue practicando!"}
+ ]
+}
+</script>
+
+<script>
+const DATA = JSON.parse(document.getElementById("data").textContent);
+const slides = DATA.slides;
+const stage = document.getElementById("stage");
+const dots = document.getElementById("dots");
+const prev = document.getElementById("prev");
+const next = document.getElementById("next");
+const themeBtn = document.getElementById("theme");
+let cur = 0;
+
+function el(tag, cls, text) {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (text !== undefined) e.textContent = text;
+  return e;
+}
+
+function buildCode(codes) {
+  const box = el("div");
+  const tabs = el("div", "tabs");
+  const pre = el("pre");
+  const note = el("p", "note");
+  const buttons = codes.map((c, i) => {
+    const b = el("button", "tab", c.lang);
+    b.onclick = () => show(i);
+    tabs.appendChild(b);
+    return b;
+  });
+  function show(i) {
+    buttons.forEach((b, j) => b.classList.toggle("on", i === j));
+    pre.textContent = codes[i].code;
+    note.textContent = "💬 " + codes[i].note;
+  }
+  box.append(tabs, pre, note);
+  show(0);
+  return box;
+}
+
+function buildTable(t) {
+  const wrap = el("div", "tablewrap");
+  const table = el("table");
+  const tr = el("tr");
+  const cls = ["", "f", "b", "s"];
+  t.head.forEach((h, i) => tr.appendChild(el("th", cls[i], h)));
+  table.appendChild(tr);
+  t.rows.forEach(r => {
+    const row = el("tr");
+    r.forEach((c, i) => row.appendChild(i === 0 ? el("th", "", c) : el("td", "", c)));
+    table.appendChild(row);
+  });
+  wrap.appendChild(table);
+  return wrap;
+}
+
+function render() {
+  const s = slides[cur];
+  const sl = el("section", "slide");
+  if (s.color) sl.style.setProperty("--c", "var(" + s.color + ")");
+  if (s.icon) sl.appendChild(el("div", "icon", s.icon));
+  if (s.tag) sl.appendChild(el("div", "tag", s.tag));
+  sl.appendChild(el(cur === 0 ? "h1" : "h2", "", s.title));
+  if (s.sub) sl.appendChild(el("p", "sub", s.sub));
+  if (s.text) sl.appendChild(el("p", "", s.text));
+  if (s.analogy) sl.appendChild(el("div", "analogy", "🍽️ " + s.analogy));
+  if (s.points) {
+    const ul = el("ul", "points");
+    s.points.forEach(p => {
+      const li = el("li");
+      li.append(el("span", "", p[0]), el("span", "", p[1]));
+      ul.appendChild(li);
+    });
+    sl.appendChild(ul);
+  }
+  if (s.code) sl.appendChild(buildCode(s.code));
+  if (s.table) sl.appendChild(buildTable(s.table));
+  stage.replaceChildren(sl);
+  stage.scrollTop = 0;
+  prev.disabled = cur === 0;
+  next.disabled = cur === slides.length - 1;
+  [...dots.children].forEach((d, i) => d.classList.toggle("on", i === cur));
+  try { history.replaceState(null, "", "#s" + (cur + 1)); } catch (e) {}
+}
+
+function go(i) {
+  cur = Math.max(0, Math.min(slides.length - 1, i));
+  render();
+}
+
+slides.forEach((s, i) => {
+  const d = el("button", "dot");
+  d.setAttribute("aria-label", "Ir a la diapositiva " + (i + 1));
+  d.onclick = () => go(i);
+  dots.appendChild(d);
+});
+prev.onclick = () => go(cur - 1);
+next.onclick = () => go(cur + 1);
+document.addEventListener("keydown", e => {
+  if (e.key === "ArrowRight" || e.key === "PageDown") go(cur + 1);
+  if (e.key === "ArrowLeft" || e.key === "PageUp") go(cur - 1);
+});
+let sx = null;
+stage.addEventListener("touchstart", e => { sx = e.touches[0].clientX; }, { passive: true });
+stage.addEventListener("touchend", e => {
+  if (sx === null) return;
+  const dx = e.changedTouches[0].clientX - sx;
+  if (Math.abs(dx) > 70) go(cur + (dx < 0 ? 1 : -1));
+  sx = null;
+});
+
+/* Tema día / noche */
+const root = document.documentElement;
+function isDark() {
+  const t = root.getAttribute("data-theme");
+  return t ? t === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+}
+function paintBtn() {
+  themeBtn.textContent = isDark() ? "☀️ Modo día" : "🌙 Modo noche";
+}
+try {
+  const saved = localStorage.getItem("tema");
+  if (saved === "dark" || saved === "light") root.setAttribute("data-theme", saved);
+} catch (e) {}
+themeBtn.onclick = () => {
+  const t = isDark() ? "light" : "dark";
+  root.setAttribute("data-theme", t);
+  try { localStorage.setItem("tema", t); } catch (e) {}
+  paintBtn();
+};
+paintBtn();
+
+const m = /^#s(\d+)$/.exec(location.hash);
+go(m ? Number(m[1]) - 1 : 0);
+</script>
+</body>
+</html>
