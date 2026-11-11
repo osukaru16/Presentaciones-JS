@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tabla Infinita de Colores RGB (24 bits)</title>
+  <style>
+    :root {
+      --bg-color: #f4f4f9;
+      --text-color: #1a1a1a;
+      --panel-bg: #ffffff;
+      --border-color: #cccccc;
+    }
+
+    [data-theme="dark"] {
+      --bg-color: #121212;
+      --text-color: #e0e0e0;
+      --panel-bg: #1e1e1e;
+      --border-color: #444444;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    .controls {
+      background-color: var(--panel-bg);
+      border: 1px solid var(--border-color);
+      padding: 12px 20px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      flex-shrink: 0;
+    }
+
+    .control-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    button, select {
+      padding: 8px 14px;
+      cursor: pointer;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      background-color: var(--panel-bg);
+      color: var(--text-color);
+      font-weight: bold;
+    }
+
+    button:hover, select:hover {
+      filter: brightness(0.95);
+    }
+
+    /* Contenedor del Scroll Virtual */
+    .viewport {
+      flex: 1;
+      overflow-y: auto;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      position: relative;
+      background-color: var(--panel-bg);
+    }
+
+    /* Elemento fantasma para forzar el alto real del scroll */
+    .scroll-spacer {
+      width: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+    }
+
+    /* Tabla renderizada visible */
+    .virtual-table {
+      width: 100%;
+      border-collapse: collapse;
+      position: absolute;
+      top: 0;
+      left: 0;
+      table-layout: fixed;
+    }
+
+    .virtual-table td {
+      height: 50px;
+      text-align: center;
+      font-family: monospace;
+      font-size: 0.85rem;
+      font-weight: bold;
+      padding: 2px;
+      border: 1px solid rgba(0,0,0,0.05);
+      white-space: nowrap;
+      overflow: hidden;
+    }
+
+    .info-badge {
+      font-size: 0.9rem;
+      opacity: 0.85;
+    }
+  </style>
+</head>
+<body data-theme="dark">
+
+  <div class="controls">
+    <div class="control-group">
+      <button id="themeToggle">Modo Día ☀️</button>
+    </div>
+
+    <div class="control-group">
+      <label for="textColorMode">Color del Texto:</label>
+      <select id="textColorMode">
+        <option value="inverted">Invertido exacto (#FFFFFF - Fondo)</option>
+        <option value="contrast">Contraste Óptimo (Luminosidad WCAG)</option>
+      </select>
+    </div>
+
+    <div class="control-group">
+      <label for="colsSelect">Columnas:</label>
+      <select id="colsSelect">
+        <option value="4">4 Columnas</option>
+        <option value="8" selected>8 Columnas</option>
+        <option value="16">16 Columnas</option>
+      </select>
+    </div>
+
+    <div class="info-badge">
+      Total de celdas: <strong>16.777.216</strong>
+    </div>
+  </div>
+
+  <div class="viewport" id="viewport">
+    <div class="scroll-spacer" id="spacer"></div>
+    <table class="virtual-table" id="virtualTable">
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+
+  <script>
+    const TOTAL_COLORS = 16777216; // 0x000000 a 0xFFFFFF (2^24)
+    const ROW_HEIGHT = 50; // Alto fijo de cada fila en píxeles
+
+    const viewport = document.getElementById('viewport');
+    const spacer = document.getElementById('spacer');
+    const virtualTable = document.getElementById('virtualTable');
+    const tableBody = document.getElementById('tableBody');
+    const themeToggleBtn = document.getElementById('themeToggle');
+    const textColorModeSelect = document.getElementById('textColorMode');
+    const colsSelect = document.getElementById('colsSelect');
+
+    let cols = parseInt(colsSelect.value, 10);
+
+    // Modo Día / Noche
+    themeToggleBtn.addEventListener('click', () => {
+      const isDark = document.body.getAttribute('data-theme') === 'dark';
+      document.body.setAttribute('data-theme', isDark ? 'light' : 'dark');
+      themeToggleBtn.textContent = isDark ? 'Modo Noche 🌙' : 'Modo Día ☀️';
+    });
+
+    // Inversión exacta del color hex
+    function getInvertedColor(val) {
+      const inv = 0xFFFFFF - val;
+      return '#' + inv.toString(16).padStart(6, '0').toUpperCase();
+    }
+
+    // Contraste por luminosidad relativa (r, g, b)
+    function getContrastColor(val) {
+      const r = (val >> 16) & 0xFF;
+      const g = (val >> 8) & 0xFF;
+      const b = val & 0xFF;
+      // Fórmula de luminancia según especificación WCAG
+      const luminance = (0.299 * r + 0.587 * g + 0.114 * b);
+      return luminance > 128 ? '#000000' : '#FFFFFF';
+    }
+
+    // Renderizado dinámico según la posición del scroll
+    function renderVirtualTable() {
+      const totalRows = Math.ceil(TOTAL_COLORS / cols);
+      const totalHeight = totalRows * ROW_HEIGHT;
+      spacer.style.height = `${totalHeight}px`;
+
+      const scrollTop = viewport.scrollTop;
+      const viewportHeight = viewport.clientHeight;
+
+      // Calcular qué filas deben dibujarse (más un margen buffer de seguridad)
+      const buffer = 5;
+      const startRow = Math.max(0, Math.floor(scrollTop / ROW_HEIGHT) - buffer);
+      const endRow = Math.min(totalRows - 1, Math.ceil((scrollTop + viewportHeight) / ROW_HEIGHT) + buffer);
+
+      // Posicionar la tabla donde corresponde en el viewport
+      virtualTable.style.transform = `translateY(${startRow * ROW_HEIGHT}px)`;
+
+      const mode = textColorModeSelect.value;
+      let html = '';
+
+      for (let r = startRow; r <= endRow; r++) {
+        html += '<tr>';
+        for (let c = 0; c < cols; c++) {
+          const colorIndex = r * cols + c;
+          if (colorIndex >= TOTAL_COLORS) {
+            html += '<td></td>';
+            continue;
+          }
+
+          const hexStr = '#' + colorIndex.toString(16).padStart(6, '0').toUpperCase();
+          const textColor = (mode === 'inverted') 
+            ? getInvertedColor(colorIndex) 
+            : getContrastColor(colorIndex);
+
+          html += `<td style="background-color: ${hexStr}; color: ${textColor};">${hexStr}</td>`;
+        }
+        html += '</tr>';
+      }
+
+      tableBody.innerHTML = html;
+    }
+
+    // Event listeners para scroll y cambios de vista
+    viewport.addEventListener('scroll', renderVirtualTable);
+    colsSelect.addEventListener('change', () => {
+      cols = parseInt(colsSelect.value, 10);
+      viewport.scrollTop = 0;
+      renderVirtualTable();
+    });
+    textColorModeSelect.addEventListener('change', renderVirtualTable);
+
+    // Ajustar si se cambia el tamaño de la ventana
+    window.addEventListener('resize', renderVirtualTable);
+
+    // Carga inicial
+    renderVirtualTable();
+  </script>
+</body>
+</html>

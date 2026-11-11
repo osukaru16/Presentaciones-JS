@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mosaico de Colores Infinito para Artistas</title>
+  <style>
+    :root {
+      --bg: #121212;
+      --text: #e0e0e0;
+      --panel: #1e1e1e;
+      --border: #333333;
+    }
+    body.light {
+      --bg: #f4f4f9;
+      --text: #1a1a1a;
+      --panel: #ffffff;
+      --border: #cccccc;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    .toolbar {
+      background-color: var(--panel);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 16px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+      z-index: 10;
+      flex-shrink: 0;
+    }
+
+    .group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    button, select {
+      padding: 7px 12px;
+      cursor: pointer;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      color: var(--text);
+      font-weight: 600;
+      font-size: 0.85rem;
+    }
+
+    button:hover, select:hover {
+      filter: brightness(1.1);
+    }
+
+    .canvas-container {
+      flex: 1;
+      width: 100%;
+      height: 100%;
+      position: relative;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      cursor: crosshair;
+    }
+
+    /* Popup flotante con información del color bajo el cursor */
+    .color-tooltip {
+      position: absolute;
+      pointer-events: none;
+      background: rgba(0, 0, 0, 0.85);
+      color: #fff;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-family: monospace;
+      font-size: 0.85rem;
+      display: none;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      z-index: 20;
+    }
+
+    /* Notificación de copiado */
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--panel);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 10px 20px;
+      border-radius: 20px;
+      font-weight: bold;
+      font-size: 0.9rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      display: none;
+      z-index: 30;
+    }
+  </style>
+</head>
+<body class="dark">
+
+  <div class="toolbar">
+    <div class="group">
+      <button id="themeToggle">Modo Día ☀️</button>
+    </div>
+
+    <div class="group">
+      <label for="modeSelect">Distribución:</label>
+      <select id="modeSelect">
+        <option value="spectrum">Arcoíris Continuo (HSL)</option>
+        <option value="artisticGrid">Mosaico Densa de Tonos Artísticos</option>
+        <option value="palette2d">Matiz vs Luminosidad (2D)</option>
+      </select>
+    </div>
+
+    <div class="group">
+      <label for="densitySelect">Tamaño de Celda:</label>
+      <select id="densitySelect">
+        <option value="15">Pequeño (Ultra Denso)</option>
+        <option value="25" selected>Mediano (Estándar)</option>
+        <option value="40">Grande (Bloques amplios)</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="canvas-container" id="container">
+    <canvas id="colorCanvas"></canvas>
+    <div class="color-tooltip" id="tooltip">#000000</div>
+  </div>
+
+  <div class="toast" id="toast">¡Código copiado al portapapeles!</div>
+
+  <script>
+    const canvas = document.getElementById('colorCanvas');
+    const ctx = canvas.getContext('2d');
+    const container = document.getElementById('container');
+    const tooltip = document.getElementById('tooltip');
+    const toast = document.getElementById('toast');
+    const themeToggle = document.getElementById('themeToggle');
+    const modeSelect = document.getElementById('modeSelect');
+    const densitySelect = document.getElementById('densitySelect');
+
+    let cellWidth = 25;
+    let cellHeight = 25;
+    let gridColors = []; // Guarda las referencias de cada celda visible
+
+    // Redimensionar canvas al tamaño exacto de la pantalla
+    function resizeCanvas() {
+      canvas.width = container.clientWidth;
+      canvas.height = container.clientHeight;
+      draw();
+    }
+
+    // Convertir RGB a HEX
+    function rgbToHex(r, g, b) {
+      return "#" + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('').toUpperCase();
+    }
+
+    // Convertir HSL a HEX
+    function hslToHex(h, s, l) {
+      l /= 100;
+      const a = s * Math.min(l, 1 - l) / 100;
+      const f = n => {
+        const k = (n + h / 30) % 12;
+        const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+        return Math.round(255 * color).toString(16).padStart(2, '0');
+      };
+      return `#${f(0)}${f(8)}${f(4)}`.toUpperCase();
+    }
+
+    // Dibujar la pantalla completa según el modo elegido
+    function draw() {
+      const cols = Math.ceil(canvas.width / cellWidth);
+      const rows = Math.ceil(canvas.height / cellHeight);
+      gridColors = [];
+
+      const mode = modeSelect.value;
+
+      for (let r = 0; r < rows; r++) {
+        gridColors[r] = [];
+        for (let c = 0; c < cols; c++) {
+          let hex = "#000000";
+
+          if (mode === "spectrum") {
+            // Mapeo horizontal de Matiz (Hue) y vertical de Luminosidad (Lightness)
+            const hue = (c / cols) * 360;
+            const lightness = 95 - (r / rows) * 85;
+            hex = hslToHex(hue, 85, lightness);
+          } else if (mode === "artisticGrid") {
+            // Generación de mosaico continuo con variaciones tonales cromáticas
+            const hue = ((c * 7 + r * 13) % 360);
+            const sat = 60 + ((c + r) % 35);
+            const light = 25 + ((r * 3 + c * 2) % 65);
+            hex = hslToHex(hue, sat, light);
+          } else if (mode === "palette2d") {
+            // Gradiente 2D estilo panel de pintura profesional
+            const hue = (c / cols) * 360;
+            const sat = (r / rows) * 100;
+            hex = hslToHex(hue, sat, 50);
+          }
+
+          ctx.fillStyle = hex;
+          ctx.fillRect(c * cellWidth, r * cellHeight, cellWidth, cellHeight);
+          gridColors[r][c] = hex;
+        }
+      }
+    }
+
+    // Interacción con el cursor
+    canvas.addEventListener('mousemove', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
+      const c = Math.floor(x / cellWidth);
+      const r = Math.floor(y / cellHeight);
+
+      if (gridColors[r] && gridColors[r][c]) {
+        const hex = gridColors[r][c];
+        tooltip.textContent = hex;
+        tooltip.style.display = 'block';
+        tooltip.style.left = `${Math.min(x + 15, canvas.width - 90)}px`;
+        tooltip.style.top = `${Math.min(y + 15, canvas.height - 40)}px`;
+      }
+    });
+
+    canvas.addEventListener('mouseleave', () => {
+      tooltip.style.display = 'none';
+    });
+
+    // Copiado al portapapeles al hacer clic en cualquier punto del lienzo
+    canvas.addEventListener('click', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const c = Math.floor((e.clientX - rect.left) / cellWidth);
+      const r = Math.floor((e.clientY - rect.top) / cellHeight);
+
+      if (gridColors[r] && gridColors[r][c]) {
+        const hex = gridColors[r][c];
+        navigator.clipboard.writeText(hex);
+        
+        toast.textContent = `¡Copiado ${hex}!`;
+        toast.style.display = 'block';
+        setTimeout(() => { toast.style.display = 'none'; }, 2000);
+      }
+    });
+
+    // Eventos de interfaz
+    themeToggle.addEventListener('click', () => {
+      const isLight = document.body.classList.toggle('light');
+      themeToggle.textContent = isLight ? 'Modo Noche 🌙' : 'Modo Día ☀️';
+    });
+
+    modeSelect.addEventListener('change', draw);
+    
+    densitySelect.addEventListener('change', (e) => {
+      cellWidth = parseInt(e.target.value, 10);
+      cellHeight = cellWidth;
+      draw();
+    });
+
+    window.addEventListener('resize', resizeCanvas);
+
+    // Carga inicial
+    resizeCanvas();
+  </script>
+</body>
+</html>

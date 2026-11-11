@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="es"><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Paletas de Color para Artistas y Dibujo</title>
+  <style>
+    :root {
+      --bg: #121212;
+      --text: #e0e0e0;
+      --panel: #1e1e1e;
+    }
+    body.light {
+      --bg: #f4f4f9;
+      --text: #1a1a1a;
+      --panel: #ffffff;
+    }
+    body {
+      font-family: system-ui, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 20px;
+      transition: background 0.3s, color 0.3s;
+    }
+    .controls {
+      background: var(--panel);
+      padding: 12px 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      align-items: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    button, select {
+      padding: 8px 14px;
+      cursor: pointer;
+      border-radius: 4px;
+      border: 1px solid #666;
+      background: var(--panel);
+      color: var(--text);
+      font-weight: bold;
+    }
+    h2 {
+      margin-top: 0;
+      font-size: 1.2rem;
+      opacity: 0.9;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+      gap: 10px;
+    }
+    .cell {
+      height: 75px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: monospace;
+      font-size: 0.8rem;
+      font-weight: bold;
+      border-radius: 6px;
+      cursor: pointer;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+      transition: transform 0.1s, filter 0.1s;
+      padding: 4px;
+      text-align: center;
+    }
+    .cell:hover {
+      transform: scale(1.05);
+      filter: brightness(1.1);
+    }
+    .name {
+      font-size: 0.7rem;
+      opacity: 0.9;
+      margin-top: 4px;
+    }
+  </style>
+</head>
+<body class="dark">
+
+  <div class="controls">
+    <button onclick="document.body.classList.toggle('light')">Modo Día / Noche 🌓</button>
+    <label for="paletteSelect">Seleccionar Paleta Artística:</label>
+    <select id="paletteSelect" onchange="renderPalette()">
+      <option value="chromatic">Rueda Cromática y Primarios</option>
+      <option value="watercolor">Tonos Pastel / Acuarela Suave</option>
+      <option value="earth">Tonos Tierra y Óleos Clásicos</option>
+      <option value="vibrant" selected="selected">Ilustración Digital y Neón</option>
+    </select>
+  </div>
+
+  <h2 id="paletteTitle">Ilustración Digital y Neón</h2>
+  <div class="grid" id="grid"><div class="cell" style="background-color: rgb(255, 20, 147); color: rgb(255, 255, 255);" title="Copiar Rosa Neón (#FF1493)">
+          <span>#FF1493</span>
+          <span class="name">Rosa Neón</span>
+        </div><div class="cell" style="background-color: rgb(255, 103, 0); color: rgb(255, 255, 255);" title="Copiar Naranja Eléctrico (#FF6700)">
+          <span>#FF6700</span>
+          <span class="name">Naranja Eléctrico</span>
+        </div><div class="cell" style="background-color: rgb(50, 205, 50); color: rgb(0, 0, 0);" title="Copiar Verde Lima (#32CD32)">
+          <span>#32CD32</span>
+          <span class="name">Verde Lima</span>
+        </div><div class="cell" style="background-color: rgb(0, 206, 209); color: rgb(0, 0, 0);" title="Copiar Turquesa Brillante (#00CED1)">
+          <span>#00CED1</span>
+          <span class="name">Turquesa Brillante</span>
+        </div><div class="cell" style="background-color: rgb(138, 43, 226); color: rgb(255, 255, 255);" title="Copiar Morado Neón (#8A2BE2)">
+          <span>#8A2BE2</span>
+          <span class="name">Morado Neón</span>
+        </div><div class="cell" style="background-color: rgb(204, 255, 0); color: rgb(0, 0, 0);" title="Copiar Amarillo Brillante (#CCFF00)">
+          <span>#CCFF00</span>
+          <span class="name">Amarillo Brillante</span>
+        </div><div class="cell" style="background-color: rgb(255, 0, 127); color: rgb(255, 255, 255);" title="Copiar Magenta Vivo (#FF007F)">
+          <span>#FF007F</span>
+          <span class="name">Magenta Vivo</span>
+        </div><div class="cell" style="background-color: rgb(0, 245, 255); color: rgb(0, 0, 0);" title="Copiar Cian Láser (#00F5FF)">
+          <span>#00F5FF</span>
+          <span class="name">Cian Láser</span>
+        </div></div>
+
+  <script>
+    // Definición de paletas orientadas al arte y la ilustración
+    const palettes = {
+      chromatic: [
+        { name: "Rojo Carmesí", hex: "#DC143C", text: "#FFFFFF" },
+        { name: "Rojo Bermellón", hex: "#E34234", text: "#FFFFFF" },
+        { name: "Naranja Fuego", hex: "#FF4500", text: "#FFFFFF" },
+        { name: "Amarillo Cadmio", hex: "#FFF600", text: "#000000" },
+        { name: "Amarillo Limón", hex: "#FDFF00", text: "#000000" },
+        { name: "Verde Botella", hex: "#006400", text: "#FFFFFF" },
+        { name: "Verde Esmeralda", hex: "#50C878", text: "#000000" },
+        { name: "Cian Puro", hex: "#00FFFF", text: "#000000" },
+        { name: "Azul Ultramar", hex: "#120A8F", text: "#FFFFFF" },
+        { name: "Azul Prusiano", hex: "#003153", text: "#FFFFFF" },
+        { name: "Violeta Oscuro", hex: "#4B0082", text: "#FFFFFF" },
+        { name: "Magenta", hex: "#FF00FF", text: "#000000" }
+      ],
+      watercolor: [
+        { name: "Rosa Pastel", hex: "#FFB6C1", text: "#000000" },
+        { name: "Melocotón Suave", hex: "#FFDAB9", text: "#000000" },
+        { name: "Amarillo Crema", hex: "#FFFACD", text: "#000000" },
+        { name: "Menta Claro", hex: "#AAF0D1", text: "#000000" },
+        { name: "Celeste Acuarela", hex: "#B0E0E6", text: "#000000" },
+        { name: "Lavanda Suave", hex: "#E6E6FA", text: "#000000" },
+        { name: "Lila Pastel", hex: "#D8BFD8", text: "#000000" },
+        { name: "Gris Humo", hex: "#D3D3D3", text: "#000000" },
+        { name: "Arena Suave", hex: "#F4A460", text: "#000000" },
+        { name: "Teal Pastel", hex: "#AFEEEE", text: "#000000" }
+      ],
+      earth: [
+        { name: "Blanco Titanio", hex: "#FAFAFA", text: "#000000" },
+        { name: "Ocre Amarillo", hex: "#CC7722", text: "#FFFFFF" },
+        { name: "Siena Tostada", hex: "#8B4513", text: "#FFFFFF" },
+        { name: "Tierra de Sombra", hex: "#5C4033", text: "#FFFFFF" },
+        { name: "Rojo Veneciano", hex: "#C80815", text: "#FFFFFF" },
+        { name: "Verde Olivo", hex: "#556B2F", text: "#FFFFFF" },
+        { name: "Azul Índigo", hex: "#4B0082", text: "#FFFFFF" },
+        { name: "Negro Marfil", hex: "#1E1E1E", text: "#FFFFFF" }
+      ],
+      vibrant: [
+        { name: "Rosa Neón", hex: "#FF1493", text: "#FFFFFF" },
+        { name: "Naranja Eléctrico", hex: "#FF6700", text: "#FFFFFF" },
+        { name: "Verde Lima", hex: "#32CD32", text: "#000000" },
+        { name: "Turquesa Brillante", hex: "#00CED1", text: "#000000" },
+        { name: "Morado Neón", hex: "#8A2BE2", text: "#FFFFFF" },
+        { name: "Amarillo Brillante", hex: "#CCFF00", text: "#000000" },
+        { name: "Magenta Vivo", hex: "#FF007F", text: "#FFFFFF" },
+        { name: "Cian Láser", hex: "#00F5FF", text: "#000000" }
+      ]
+    };
+
+    function renderPalette() {
+      const select = document.getElementById('paletteSelect');
+      const grid = document.getElementById('grid');
+      const title = document.getElementById('paletteTitle');
+      
+      const key = select.value;
+      title.textContent = select.options[select.selectedIndex].text;
+      grid.innerHTML = '';
+
+      palettes[key].forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'cell';
+        div.style.backgroundColor = item.hex;
+        div.style.color = item.text;
+        
+        div.innerHTML = `
+          <span>${item.hex}</span>
+          <span class="name">${item.name}</span>
+        `;
+        
+        div.title = `Copiar ${item.name} (${item.hex})`;
+        div.onclick = () => {
+          navigator.clipboard.writeText(item.hex);
+          alert(`¡Copiado ${item.name}: ${item.hex}!`);
+        };
+        
+        grid.appendChild(div);
+      });
+    }
+
+    renderPalette();
+  </script>
+
+</body></html>
