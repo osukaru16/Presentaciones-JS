@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tipos de datos en programación</title>
+<style>
+:root{--bg:#f6f7fb;--card:#fff;--ink:#1b1e2b;--mut:#5d6378;--bd:#dde1ee;--code:#eef0f8;--acc:#4f46e5;--ok:#16a34a;--ko:#dc2626;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1220;--card:#181c2f;--ink:#eceefb;--mut:#9aa1c0;--bd:#2a3050;--code:#0d1020;--acc:#9aa1ff;--ok:#4ade80;--ko:#f87171;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0f1220;--card:#181c2f;--ink:#eceefb;--mut:#9aa1c0;--bd:#2a3050;--code:#0d1020;--acc:#9aa1ff;--ok:#4ade80;--ko:#f87171;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;display:flex;flex-direction:column;transition:background .3s,color .3s}
+header,footer{display:flex;align-items:center;gap:12px;padding:10px 18px;background:var(--card);border-bottom:1px solid var(--bd)}
+footer{border:0;border-top:1px solid var(--bd);justify-content:space-between}
+header b{flex:1;font-size:15px}
+#bar{height:3px;background:var(--acc);width:0;transition:width .3s}
+button{font:inherit;color:inherit;cursor:pointer}
+.ic,.nav{border:1px solid var(--bd);background:var(--card);border-radius:10px;padding:6px 12px}
+.nav{background:var(--acc);color:#fff;border:0;padding:8px 18px;font-weight:600}
+.nav:disabled{opacity:.35;cursor:default}
+#stage{flex:1;overflow:auto;padding:22px 18px}
+.slide{max-width:900px;margin:0 auto;animation:in .35s ease}
+@keyframes in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+h1{font-size:clamp(26px,5vw,42px);margin:.2em 0}
+h2{font-size:clamp(22px,4vw,32px);margin:.2em 0}
+.lead{color:var(--mut);font-size:1.1em}
+.big{font-size:44px;line-height:1}
+.hd{display:flex;gap:14px;align-items:center}
+.hd .big{background:color-mix(in srgb,var(--acc) 15%,transparent);border-radius:16px;padding:12px 16px;font-family:ui-monospace,monospace;font-size:28px;color:var(--acc)}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;margin:16px 0 10px}
+.tab{border:1px solid var(--bd);background:var(--card);border-radius:999px;padding:5px 14px}
+.tab.on{background:var(--acc);color:#fff;border-color:var(--acc)}
+pre{background:var(--code);border:1px solid var(--bd);border-radius:12px;padding:14px 16px;overflow-x:auto;margin:0;font:14px/1.5 ui-monospace,Menlo,Consolas,monospace}
+.note{background:var(--card);border-left:4px solid var(--acc);border-radius:8px;padding:10px 14px;margin-top:12px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:14px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:14px;text-align:left}
+button.card:hover,.chip:hover{border-color:var(--acc)}
+button.card.on{border-color:var(--acc);box-shadow:0 0 0 2px var(--acc)}
+.chip{display:inline-block;border:1px solid var(--bd);background:var(--card);border-radius:999px;padding:3px 12px;margin:3px 4px 3px 0;font-size:14px}
+code{font-family:ui-monospace,monospace;color:var(--acc)}
+table{width:100%;border-collapse:collapse;margin-top:12px}
+td{border-top:1px solid var(--bd);padding:8px 6px;vertical-align:top;font-size:14px}
+td:first-child{font-weight:700;white-space:nowrap}
+input{width:100%;font:16px ui-monospace,monospace;padding:12px 14px;border-radius:12px;border:1px solid var(--bd);background:var(--card);color:var(--ink)}
+.opt{display:block;width:100%;text-align:left;margin:8px 0;padding:10px 14px;border:1px solid var(--bd);border-radius:10px;background:var(--card)}
+.opt.ok{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 15%,transparent)}
+.opt.ko{border-color:var(--ko);background:color-mix(in srgb,var(--ko) 15%,transparent)}
+.res.ok{color:var(--ok)}.res.ko{color:var(--ko)}
+#dots{display:flex;gap:6px}
+#dots i{width:9px;height:9px;border-radius:50%;background:var(--bd);cursor:pointer}
+#dots i.on{background:var(--acc);transform:scale(1.4)}
+@media(max-width:640px){#dots{display:none}}
+</style>
+</head>
+<body>
+<header><b>🧬 Tipos de datos</b><span id="cnt" class="lead"></span><button class="ic" id="th" aria-label="Cambiar tema">🌙</button></header>
+<div id="bar"></div>
+<main id="stage"></main>
+<footer><button class="nav" id="pv">← Anterior</button><div id="dots"></div><button class="nav" id="nx">Siguiente →</button></footer>
+
+<script type="application/json" id="data">
+{
+"langs":{"py":"Python","js":"JavaScript","java":"Java","kt":"Kotlin","php":"PHP","rs":"Rust"},
+"slides":[
+{"kind":"intro","title":"Tipos de datos en programación","text":"Un tipo de dato le dice al ordenador qué clase de valor guarda una variable y qué puede hacerse con ella. Aquí los verás en Python, JavaScript, Java, Kotlin, PHP y Rust.",
+ "how":["Cambia el lenguaje con las pestañas y verás el código y sus particularidades.","Usa «Comparar todos» para ver los seis lenguajes a la vez.","Prueba el detector con tus propios valores y termina con el quiz.","Alterna modo día/noche con el botón de arriba; navega con ← → del teclado."]},
+{"kind":"type","id":"entero","icon":"123","title":"Números enteros","desc":"Números sin parte decimal: contadores, edades, índices, identificadores. Cada lenguaje decide cuántos bits ocupan.",
+ "code":{"py":"edad = 25","js":"let edad = 25;","java":"int edad = 25;","kt":"val edad: Int = 25","php":"$edad = 25;","rs":"let edad: i32 = 25;"},
+ "note":{"py":"int no tiene límite de tamaño: crece según lo necesites.","js":"Number es un double; para enteros enormes usa BigInt (25n).","java":"byte, short, int y long: 8, 16, 32 y 64 bits.","kt":"Byte, Short, Int, Long; también UInt sin signo.","php":"int de 64 bits; si desborda pasa a float.","rs":"i8…i128 con signo, u8…u128 sin signo, isize/usize."}},
+{"kind":"type","id":"decimal","icon":"1.5","title":"Decimales (coma flotante)","desc":"Números con parte fraccionaria. Son aproximaciones binarias: por eso 0.1 + 0.2 no da exactamente 0.3.",
+ "code":{"py":"precio = 9.99","js":"let precio = 9.99;","java":"double precio = 9.99;","kt":"val precio: Double = 9.99","php":"$precio = 9.99;","rs":"let precio: f64 = 9.99;"},
+ "note":{"py":"float de 64 bits; para dinero usa decimal.Decimal.","js":"Es el mismo Number de los enteros.","java":"float (32) y double (64); BigDecimal para dinero.","kt":"Float exige sufijo f (9.99f); Double es el defecto.","php":"float de 64 bits.","rs":"f32 y f64; no hay conversión implícita entre ellos."}},
+{"kind":"type","id":"texto","icon":"“A”","title":"Texto (cadenas y caracteres)","desc":"Secuencias de caracteres: nombres, mensajes, correos. Casi siempre son inmutables.",
+ "code":{"py":"nombre = \"Ana\"","js":"let nombre = \"Ana\";","java":"String nombre = \"Ana\";","kt":"val nombre = \"Ana\"","php":"$nombre = \"Ana\";","rs":"let nombre: &str = \"Ana\";"},
+ "note":{"py":"str inmutable y Unicode; no existe un char aparte.","js":"string inmutable (UTF-16) con plantillas de texto.","java":"String es un objeto; char es un primitivo de 16 bits.","kt":"String y Char; plantillas con $nombre.","php":"string es una secuencia de bytes; usa mb_* para Unicode.","rs":"&str (prestado) vs String (propio); char ocupa 4 bytes."}},
+{"kind":"type","id":"booleano","icon":"T/F","title":"Booleanos","desc":"Solo dos valores: verdadero o falso. Son la base de condiciones y bucles.",
+ "code":{"py":"activo = True","js":"let activo = true;","java":"boolean activo = true;","kt":"val activo: Boolean = true","php":"$activo = true;","rs":"let activo: bool = true;"},
+ "note":{"py":"True/False con mayúscula; bool es subtipo de int (True == 1).","js":"Hay valores «falsy»: 0, \"\", null, undefined y NaN.","java":"boolean no se mezcla con enteros.","kt":"Boolean estricto, sin conversión desde números.","php":"0, \"\", [] y null se evalúan como false.","rs":"bool ocupa 1 byte; las condiciones exigen bool."}},
+{"kind":"type","id":"nulo","icon":"∅","title":"Nulo / ausencia de valor","desc":"Representa «aquí no hay nada». Su mal uso causó el famoso «error del billón de dólares».",
+ "code":{"py":"dato = None","js":"let dato = null; // o undefined","java":"String dato = null;","kt":"val dato: String? = null","php":"$dato = null;","rs":"let dato: Option<i32> = None;"},
+ "note":{"py":"None es el único valor de NoneType.","js":"Dos ausencias: null (intencional) y undefined (sin asignar).","java":"Cualquier objeto puede ser null → NullPointerException; Optional ayuda.","kt":"Los tipos nulables llevan ? y el compilador te protege.","php":"PHP 8 añade ?int y el operador ?->.","rs":"No existe null: se usa Option<T> con Some/None."}},
+{"kind":"type","id":"lista","icon":"[ ]","title":"Listas y arrays","desc":"Colecciones ordenadas accesibles por posición (índice).",
+ "code":{"py":"nums = [1, 2, 3]","js":"let nums = [1, 2, 3];","java":"List<Integer> nums = List.of(1, 2, 3);","kt":"val nums = listOf(1, 2, 3)","php":"$nums = [1, 2, 3];","rs":"let nums = vec![1, 2, 3];"},
+ "note":{"py":"list mutable y mixta; tuple es su versión inmutable.","js":"Array dinámico que puede mezclar tipos.","java":"int[] (tamaño fijo) o List<T> (dinámica y genérica).","kt":"listOf es de solo lectura; mutableListOf se puede modificar.","php":"array sirve como lista Y como diccionario.","rs":"[T; N] fijo, Vec<T> dinámico y tuplas como (i32, &str)."}},
+{"kind":"type","id":"mapa","icon":"{ }","title":"Diccionarios y mapas","desc":"Pares clave → valor. Perfectos para datos con nombre, como un usuario o un JSON.",
+ "code":{"py":"user = {\"nombre\": \"Ana\", \"edad\": 25}","js":"let user = { nombre: \"Ana\", edad: 25 };","java":"Map<String, Object> user = Map.of(\"nombre\", \"Ana\");","kt":"val user = mapOf(\"nombre\" to \"Ana\")","php":"$user = [\"nombre\" => \"Ana\", \"edad\" => 25];","rs":"let mut user = HashMap::new();\nuser.insert(\"nombre\", \"Ana\");"},
+ "note":{"py":"dict conserva el orden de inserción.","js":"Object o Map (este admite claves de cualquier tipo).","java":"HashMap, TreeMap (ordenado) o LinkedHashMap.","kt":"Map / mutableMapOf; para campos fijos, data class.","php":"Arrays asociativos, además de objetos stdClass.","rs":"HashMap/BTreeMap; para campos fijos se usa struct."}},
+{"kind":"type","id":"conjunto","icon":"∪","title":"Conjuntos","desc":"Colecciones sin elementos repetidos; ideales para pertenencia, uniones e intersecciones.",
+ "code":{"py":"tags = {1, 2, 2}  # → {1, 2}","js":"let tags = new Set([1, 2, 2]);","java":"Set<Integer> tags = Set.of(1, 2);","kt":"val tags = setOf(1, 2, 2)","php":"$tags = array_unique([1, 2, 2]);","rs":"let tags = HashSet::from([1, 2, 2]);"},
+ "note":{"py":"set y frozenset con operaciones de conjuntos (| & -).","js":"Set guarda valores únicos.","java":"HashSet, TreeSet y LinkedHashSet.","kt":"setOf / mutableSetOf.","php":"No hay set nativo: se simula con array_unique.","rs":"HashSet y BTreeSet en std::collections."}},
+{"kind":"typing","title":"Tipado estático vs dinámico","text":"¿Cuándo se comprueba el tipo? Prueba a reasignar una variable de número a texto:",
+ "modes":{"dinamico":{"label":"Dinámico (Python, JS, PHP)","code":"x = 5\nx = \"hola\"   # ¿permitido?","ok":true,"res":"✅ Válido: el tipo pertenece al valor, no a la variable. Los errores aparecen al ejecutar."},
+ "estatico":{"label":"Estático (Java, Kotlin, Rust)","code":"int x = 5;\nx = \"hola\";  // ¿permitido?","ok":false,"res":"❌ Error de compilación: el tipo está fijado de antemano, así los fallos se detectan antes de ejecutar."}}},
+{"kind":"exclusive","title":"Tipos exclusivos por lenguaje",
+ "list":{"py":[{"t":"complex","d":"Números complejos nativos: 3 + 4j."},{"t":"bytes / bytearray","d":"Secuencias binarias para archivos y red."},{"t":"range","d":"Rango perezoso: range(0, 10)."}],
+ "js":[{"t":"undefined","d":"Variable declarada pero sin valor."},{"t":"Symbol","d":"Identificadores únicos e irrepetibles."},{"t":"BigInt","d":"Enteros arbitrariamente grandes: 9007199254740993n."}],
+ "java":[{"t":"Primitivos vs wrappers","d":"int/Integer, double/Double: el primitivo es rápido, el wrapper es un objeto."},{"t":"byte y short","d":"Enteros de 8 y 16 bits."},{"t":"record / enum","d":"Tipos de datos inmutables y enumeraciones con comportamiento."}],
+ "kt":[{"t":"Unit","d":"Equivale a void, pero es un tipo real con un único valor."},{"t":"Nothing","d":"Tipo de lo que nunca devuelve (por ejemplo, lanza una excepción)."},{"t":"Any / sealed class","d":"Raíz de todos los tipos y jerarquías cerradas."}],
+ "php":[{"t":"resource","d":"Referencia a recursos externos (archivos, conexiones)."},{"t":"callable / iterable","d":"Tipos que describen funciones y recorridos."},{"t":"mixed","d":"Acepta cualquier tipo (PHP 8)."}],
+ "rs":[{"t":"Option<T> y Result<T,E>","d":"Sustituyen a null y a las excepciones."},{"t":"Tuplas y ()","d":"(i32, &str) agrupa tipos distintos; () es la unidad."},{"t":"&T / &mut T","d":"Referencias con ownership y borrowing: sin recolector de basura."}]}},
+{"kind":"domains","title":"¿Qué tipos se usan más según el ámbito?",
+ "items":[{"i":"🌐","n":"Web y APIs","t":"El intercambio de datos usa JSON, que solo conoce seis tipos.","c":["string","number","boolean","null","array","object"]},
+ {"i":"📊","n":"Ciencia de datos","t":"Predominan Python y sus tipos numéricos de alto rendimiento.","c":["float64","ndarray","DataFrame","complex"]},
+ {"i":"💰","n":"Finanzas","t":"El float es impreciso: se usan decimales exactos o enteros en céntimos.","c":["Decimal","BigDecimal","long (céntimos)"]},
+ {"i":"🔌","n":"Sistemas y embebidos","t":"Importa cada bit: tamaños exactos y manejo directo de memoria.","c":["u8","i16","f32","punteros","bitflags"]},
+ {"i":"📱","n":"Apps Android","t":"Kotlin evita fallos con tipos nulables y clases pensadas para datos.","c":["String?","data class","sealed class","Int"]},
+ {"i":"🎮","n":"Videojuegos","t":"Mucha matemática en tiempo real con precisión simple.","c":["float / f32","Vector2/3","enum","bool"]}]},
+{"kind":"detector","title":"Detector de tipos","text":"Escribe un valor y mira cómo se llama y se declara en cada lenguaje.",
+ "ex":["42","3.14","true","\"hola\"","null","[1, 2, 3]","{\"a\": 1}"],
+ "tpl":{"py":"x = {v}","js":"let x = {v};","java":"{T} x = {v};","kt":"val x: {T} = {v}","php":"$x = {v};","rs":"let x: {T} = {v};"},
+ "types":{"entero":{"py":"int","js":"number","java":"int","kt":"Int","php":"int","rs":"i32"},
+ "decimal":{"py":"float","js":"number","java":"double","kt":"Double","php":"float","rs":"f64"},
+ "booleano":{"py":"bool","js":"boolean","java":"boolean","kt":"Boolean","php":"bool","rs":"bool"},
+ "texto":{"py":"str","js":"string","java":"String","kt":"String","php":"string","rs":"&str"},
+ "nulo":{"py":"NoneType","js":"null","java":"referencia null","kt":"tipo nulable (?)","php":"null","rs":"Option<T>"},
+ "lista":{"py":"list","js":"Array","java":"List<T>","kt":"List<T>","php":"array","rs":"Vec<T>"},
+ "mapa":{"py":"dict","js":"Object / Map","java":"Map<K,V>","kt":"Map<K,V>","php":"array asociativo","rs":"HashMap<K,V>"}}},
+{"kind":"quiz","title":"Quiz final",
+ "q":[{"q":"¿Qué usa Rust en lugar de null?","o":["undefined","Option<T>","Nothing","void"],"a":1,"w":"Option<T> obliga a tratar explícitamente la ausencia de valor."},
+ {"q":"¿Qué tipo de JavaScript permite enteros mayores que 2^53?","o":["Symbol","long","BigInt","double"],"a":2,"w":"BigInt (con sufijo n) no tiene límite práctico de tamaño."},
+ {"q":"¿Qué lenguaje marca los tipos nulables con «?»","o":["Kotlin","PHP","Java","Python"],"a":0,"w":"En Kotlin, String? admite null y String no."},
+ {"q":"¿Qué tipo es el más seguro para dinero exacto?","o":["float","char","Decimal / BigDecimal","bool"],"a":2,"w":"Los decimales exactos evitan errores de redondeo binario."},
+ {"q":"¿Cuál NO es un tipo primitivo de Java?","o":["int","boolean","String","double"],"a":2,"w":"String es una clase (objeto), no un primitivo."}]}
+]}
+</script>
+
+<script>
+const D=JSON.parse(document.getElementById('data').textContent),L=D.langs,K=Object.keys(L),S=D.slides,stage=document.getElementById('stage');
+let i=0,lang='py',cmp=false,mode=null,dom=0,val='42',qa=[],root=document.documentElement;
+try{lang=localStorage.getItem('lang')||'py'}catch(e){}
+const el=(t,c,h)=>{const e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e};
+const esc=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+const pre=c=>`<pre><code style="color:inherit">${esc(c)}</code></pre>`;
+function tabs(cur,cb){const d=el('div','tabs');K.forEach(k=>{const b=el('button','tab'+(k===cur?' on':''),L[k]);b.onclick=()=>cb(k);d.append(b)});return d}
+function setLang(k){lang=k;try{localStorage.setItem('lang',k)}catch(e){}show(true)}
+const R={
+intro(v,s){v.innerHTML=`<div class="big">🧬</div><h1>${s.title}</h1><p class="lead">${s.text}</p><div class="grid">${s.how.map(h=>`<div class="card">${h}</div>`).join('')}</div><h2 style="margin-top:28px">Índice</h2>`;
+ const c=el('div');S.forEach((x,j)=>{if(j){const b=el('button','chip',x.title);b.onclick=()=>go(j);c.append(b)}});v.append(c)},
+type(v,s){v.innerHTML=`<div class="hd"><div class="big">${s.icon}</div><div><h2>${s.title}</h2><p class="lead" style="margin:0">${s.desc}</p></div></div>`;
+ const t=el('div','tabs');t.append(...tabs(lang,setLang).children);const b=el('button','tab'+(cmp?' on':''),'⇄ Comparar todos');b.onclick=()=>{cmp=!cmp;show(true)};t.append(b);v.append(t);
+ if(cmp){v.insertAdjacentHTML('beforeend','<table>'+K.map(k=>`<tr><td>${L[k]}</td><td><code style="white-space:pre-wrap">${esc(s.code[k])}</code><br><span class="lead" style="font-size:13px">${s.note[k]}</span></td></tr>`).join('')+'</table>')}
+ else{v.insertAdjacentHTML('beforeend',pre(s.code[lang])+`<div class="note">💡 <b>${L[lang]}:</b> ${s.note[lang]}</div>`)}},
+typing(v,s){v.innerHTML=`<h2>${s.title}</h2><p class="lead">${s.text}</p>`;const t=el('div','tabs');
+ Object.entries(s.modes).forEach(([k,m])=>{const b=el('button','tab'+(mode===k?' on':''),m.label);b.onclick=()=>{mode=k;show(true)};t.append(b)});v.append(t);
+ if(mode){const m=s.modes[mode];v.insertAdjacentHTML('beforeend',pre(m.code)+`<div class="note res ${m.ok?'ok':'ko'}">${m.res}</div>`)}},
+exclusive(v,s){v.innerHTML=`<h2>${s.title}</h2><p class="lead">Elige un lenguaje y descubre qué tiene que otros no.</p>`;v.append(tabs(lang,setLang));
+ v.insertAdjacentHTML('beforeend','<div class="grid">'+s.list[lang].map(x=>`<div class="card"><b><code>${esc(x.t)}</code></b><br>${x.d}</div>`).join('')+'</div>')},
+domains(v,s){v.innerHTML=`<h2>${s.title}</h2><p class="lead">Toca un ámbito.</p>`;const g=el('div','grid');
+ s.items.forEach((x,j)=>{const b=el('button','card'+(j===dom?' on':''),`<div class="big" style="font-size:30px">${x.i}</div><b>${x.n}</b>`);b.onclick=()=>{dom=j;show(true)};g.append(b)});v.append(g);
+ const x=s.items[dom];v.insertAdjacentHTML('beforeend',`<div class="note"><b>${x.n}:</b> ${x.t}<div style="margin-top:8px">${x.c.map(c=>`<span class="chip"><code>${esc(c)}</code></span>`).join('')}</div></div>`)},
+detector(v,s){v.innerHTML=`<h2>${s.title}</h2><p class="lead">${s.text}</p>`;const inp=el('input');inp.value=val;inp.placeholder='Ej.: 42, 3.14, true, "hola", null, [1,2,3]…';v.append(inp);
+ const ex=el('div','tabs');s.ex.forEach(e=>{const b=el('button','chip',esc(e));b.onclick=()=>{val=e;inp.value=e;out()};ex.append(b)});v.append(ex);const o=el('div');v.append(o);
+ function out(){val=inp.value;const t=val.trim();if(!t){o.innerHTML='';return}
+  const k=/^-?\d+$/.test(t)?'entero':/^-?\d*[.,]\d+$/.test(t)?'decimal':/^(true|false)$/i.test(t)?'booleano':/^(null|none|nil|undefined)$/i.test(t)?'nulo':/^\[.*\]$/.test(t)?'lista':/^\{.*\}$/.test(t)?'mapa':'texto';
+  const ty=s.types[k];o.innerHTML=`<p>Detectado: <b style="color:var(--acc)">${k}</b></p><div class="grid">`+K.map(l=>{
+   let d;if(['lista','mapa','nulo'].includes(k)){d=S.find(x=>x.id===k).code[l]}else{let x=t;if(k==='decimal')x=t.replace(',','.');if(k==='booleano'){x=t.toLowerCase();if(l==='py')x=x[0].toUpperCase()+x.slice(1)}if(k==='texto')x='"'+t.replace(/^["']|["']$/g,'')+'"';d=s.tpl[l].replace('{T}',ty[l]).replace('{v}',x)}
+   return `<div class="card"><b>${L[l]}</b> · <code>${esc(ty[l])}</code>${pre(d).replace('<pre>','<pre style="margin-top:8px">')}</div>`}).join('')+'</div>'}
+ inp.oninput=out;out()},
+quiz(v,s){v.innerHTML=`<h2>${s.title}</h2>`;let sc=0;s.q.forEach((q,n)=>{const c=el('div','card');c.style.margin='12px 0';c.innerHTML=`<b>${n+1}. ${q.q}</b>`;
+  q.o.forEach((t,j)=>{const b=el('button','opt',esc(t));b.onclick=()=>{if(qa[n]!=null)return;qa[n]=j;show(true)};
+   if(qa[n]!=null){b.classList.add(j===q.a?'ok':j===qa[n]?'ko':'x')}c.append(b)});
+  if(qa[n]!=null){if(qa[n]===q.a)sc++;c.insertAdjacentHTML('beforeend',`<div class="lead">${qa[n]===q.a?'✅':'❌'} ${q.w}</div>`)}v.append(c)});
+ if(qa.filter(x=>x!=null).length===s.q.length){const b=el('button','nav',`🏆 ${sc}/${s.q.length} · Reintentar`);b.onclick=()=>{qa=[];show(true)};v.append(b)}}};
+const dots=document.getElementById('dots');S.forEach((s,j)=>{const d=el('i');d.title=s.title;d.onclick=()=>go(j);dots.append(d)});
+function go(n){i=Math.max(0,Math.min(S.length-1,n));show()}
+function show(keep){const y=stage.scrollTop;stage.innerHTML='';const v=el('section','slide');if(keep)v.style.animation='none';R[S[i].kind](v,S[i]);stage.append(v);stage.scrollTop=keep?y:0;
+ document.getElementById('cnt').textContent=(i+1)+' / '+S.length;document.getElementById('bar').style.width=((i+1)/S.length*100)+'%';
+ [...dots.children].forEach((d,j)=>d.classList.toggle('on',j===i));pv.disabled=i===0;nx.disabled=i===S.length-1}
+const pv=document.getElementById('pv'),nx=document.getElementById('nx');pv.onclick=()=>go(i-1);nx.onclick=()=>go(i+1);
+addEventListener('keydown',e=>{if(e.target.tagName==='INPUT')return;if(e.key==='ArrowRight')go(i+1);if(e.key==='ArrowLeft')go(i-1)});
+const th=document.getElementById('th');
+function theme(t){root.dataset.theme=t;th.textContent=t==='dark'?'☀️':'🌙';try{localStorage.setItem('theme',t)}catch(e){}}
+let t0=null;try{t0=localStorage.getItem('theme')}catch(e){}
+theme(t0||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'));
+th.onclick=()=>theme(root.dataset.theme==='dark'?'light':'dark');
+show();
+</script>
+</body>
+</html>
