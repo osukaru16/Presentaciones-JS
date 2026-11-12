@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tipado en programación: fuerte vs débil</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f2f5fb;--card:#fff;--ink:#14213d;--mute:#51607c;--line:#d8e0ee;--strong:#0b8f7e;--strong-bg:#d9f3ee;--weak:#c46a00;--weak-bg:#ffead0;--mid:#5b5fc7;--mid-bg:#e5e6fb;--code:#0f1b30;--codeink:#e6edf7;--bad:#ff8a8a;--good:#7be3c9;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#0b1220;--card:#131d31;--ink:#e8eefb;--mute:#9db0d1;--line:#27344f;--strong:#4fd8c0;--strong-bg:#0f3a38;--weak:#ffb25b;--weak-bg:#43300f;--mid:#9ea2ff;--mid-bg:#25274f;--code:#070c17}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#0b1220;--card:#131d31;--ink:#e8eefb;--mute:#9db0d1;--line:#27344f;--strong:#4fd8c0;--strong-bg:#0f3a38;--weak:#ffb25b;--weak-bg:#43300f;--mid:#9ea2ff;--mid-bg:#25274f;--code:#070c17}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.6 "Bricolage Grotesque",system-ui,sans-serif;min-height:100vh;transition:background .3s,color .3s}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:10}
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;display:flex;align-items:center;gap:12px;padding:12px clamp(16px,4vw,48px);background:var(--bg);border-bottom:1px solid var(--line)}
+.bar b{font-weight:800;letter-spacing:-.01em}
+.prog{flex:1;height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.prog i{display:block;height:100%;width:0;background:var(--strong);transition:width .35s}
+button{font:inherit;cursor:pointer;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 14px}
+button:hover{border-color:var(--strong)}
+button:focus-visible{outline:3px solid var(--mid);outline-offset:2px}
+main{max-width:1000px;margin:0 auto;padding:clamp(20px,5vw,56px) clamp(16px,4vw,32px) 110px}
+h1{font-size:clamp(2.4rem,7vw,4.6rem);line-height:1.02;letter-spacing:-.03em;margin:0 0 16px;font-weight:800}
+h2{font-size:clamp(1.8rem,4.5vw,2.8rem);line-height:1.1;letter-spacing:-.02em;margin:0 0 24px;font-weight:800}
+h3{margin:0 0 6px;font-size:1.2rem}
+p{margin:0 0 12px;max-width:68ch}
+.lead{font-size:1.3rem;color:var(--mute)}
+.grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px}
+.card.fuerte{border-left:6px solid var(--strong)}.card.debil{border-left:6px solid var(--weak)}
+.card.estatico{border-left:6px solid var(--mid)}.card.dinamico{border-left:6px solid var(--weak)}
+pre{margin:10px 0;background:var(--code);color:var(--codeink);border-radius:10px;padding:14px 16px;overflow-x:auto;font:14px/1.5 "JetBrains Mono",ui-monospace,monospace}
+.call{margin-top:20px;padding:16px 20px;border-radius:12px;background:var(--strong-bg);color:var(--ink);border:1px solid var(--strong);max-width:68ch}
+.tag{display:inline-block;padding:3px 10px;border-radius:99px;font-size:.85rem;font-weight:700;margin:0 6px 6px 0}
+.t-Fuerte{background:var(--strong-bg);color:var(--strong)}.t-Débil{background:var(--weak-bg);color:var(--weak)}.t-Intermedio,.t-Estático{background:var(--mid-bg);color:var(--mid)}.t-Dinámico{background:var(--weak-bg);color:var(--weak)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.chips button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.res{margin-top:10px;padding:12px 16px;border-radius:10px;font:600 14px/1.5 "JetBrains Mono",monospace}
+.res.ok{background:var(--strong-bg);color:var(--strong)}.res.err{background:var(--weak-bg);color:var(--weak)}
+.tw{overflow-x:auto}table{border-collapse:collapse;width:100%;min-width:560px}
+th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line)}
+th{color:var(--mute);font-weight:600}
+.nav{position:fixed;left:0;right:0;bottom:0;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));display:flex;justify-content:center;align-items:center;gap:16px;background:var(--bg);border-top:1px solid var(--line)}
+.nav button{min-width:120px;font-weight:700}
+.nav button:disabled{opacity:.4;cursor:default}
+#slide{animation:in .25s ease}
+@keyframes in{from{opacity:0}to{opacity:1}}
+@media (prefers-reduced-motion:reduce){#slide{animation:none}.prog i{transition:none}}
+</style>
+</head>
+<body>
+<div class="bar"><b>Tipado</b><div class="prog"><i id="pg"></i></div><span id="cnt"></span><button id="th" aria-label="Cambiar entre modo diurno y nocturno">🌙 Noche</button></div>
+<main id="slide" tabindex="-1" aria-live="polite"></main>
+<div class="nav"><button id="prev">← Anterior</button><button id="next">Siguiente →</button></div>
+
+<script id="datos" type="application/json">
+{
+"diapositivas":[
+{"tipo":"portada","titulo":"Tipado en programación","texto":"Lenguajes fuertemente tipados y débilmente tipados, explicado desde cero y con ejemplos reales.","pista":"Avanza con los botones o con las flechas ← → del teclado."},
+{"tipo":"texto","titulo":"¿Qué es un tipo de dato?","texto":"Un tipo le dice al lenguaje qué clase de información es un valor. Según el tipo, se pueden hacer unas operaciones u otras.","items":[{"h":"Entero (int)","t":"Números sin decimales: 7, -2, 100. Se pueden sumar y multiplicar."},{"h":"Texto (string)","t":"Palabras entre comillas: “hola”, “5”. Se pueden unir, pero no multiplicar como números."},{"h":"Booleano (bool)","t":"Solo verdadero o falso: true / false."}],"callout":"Ojo: 5 y “5” parecen iguales, pero son tipos distintos. El primero es un número y el segundo es un texto."},
+{"tipo":"texto","titulo":"Dos preguntas distintas","texto":"Cuando alguien habla de “tipado” mezcla a menudo dos ideas. Conviene separarlas desde el principio.","items":[{"h":"¿Cuándo se comprueban los tipos?","t":"Antes de ejecutar el programa (estático) o mientras se ejecuta (dinámico).","c":"estatico"},{"h":"¿Cuánto se permite mezclar tipos?","t":"Poco, y te avisa con un error (fuerte), o mucho, convirtiendo cosas por su cuenta (débil).","c":"fuerte"}],"callout":"Son ejes independientes. Python es dinámico y fuerte; Java es estático y fuerte; JavaScript es dinámico y débil."},
+{"tipo":"comparar","titulo":"Fuerte vs débil","texto":"Probemos lo mismo en dos lenguajes: sumar el texto “5” y el número 3.","columnas":[{"c":"fuerte","titulo":"Fuertemente tipado","texto":"No mezcla tipos por su cuenta. Si no encajan, da error y te obliga a convertir tú.","codigo":"# Python\nx = \"5\" + 3\n# TypeError","nota":"Ventaja: los fallos se ven pronto. Coste: algo más de escritura."},{"c":"debil","titulo":"Débilmente tipado","texto":"Convierte tipos automáticamente para que la operación funcione, aunque no sea lo que querías.","codigo":"// JavaScript\nlet x = \"5\" + 3;\n// x vale \"53\"","nota":"Ventaja: cómodo y rápido. Riesgo: resultados raros sin ningún aviso."}],"callout":"Fuerte no significa mejor. Significa que el lenguaje es más estricto con los tipos."},
+{"tipo":"comparar","titulo":"Estático vs dinámico","texto":"Ahora la otra pregunta: ¿cuándo se detecta el problema?","columnas":[{"c":"estatico","titulo":"Estático","texto":"Los tipos se declaran y se revisan al compilar, antes de ejecutar. El error aparece cuando escribes, no cuando el usuario usa el programa.","codigo":"// Java\nint edad = \"veinte\";\n// no compila","nota":"Java, C/C++, C#, Rust, Kotlin, TypeScript."},{"c":"dinamico","titulo":"Dinámico","texto":"Una variable puede guardar cualquier tipo y se comprueba al ejecutar esa línea. El error puede aparecer tarde.","codigo":"# Python\nedad = 20\nedad = \"veinte\"  # válido","nota":"Python, JavaScript, PHP."}],"callout":"Un lenguaje dinámico y fuerte como Python no avisa antes de ejecutar, pero tampoco mezcla tipos a escondidas."},
+{"tipo":"explorador","titulo":"Pruébalo tú","texto":"Elige un lenguaje, mira el código y pulsa Ejecutar para ver qué pasa al mezclar texto y número."},
+{"tipo":"tabla","titulo":"Mapa de lenguajes","texto":"Filtra por nivel de rigor. C y C++ están en un punto intermedio: sus reglas de tipos son estrictas, pero permiten muchas conversiones y trucos con punteros."},
+{"tipo":"texto","titulo":"Ideas clave","items":[{"h":"Tipo","t":"La clase de un dato: número, texto, verdadero/falso."},{"h":"Fuerte","t":"El lenguaje no mezcla tipos solo. Te da un error y tú decides cómo convertir."},{"h":"Débil","t":"El lenguaje convierte tipos automáticamente. Es cómodo, pero puede dar resultados inesperados."},{"h":"Estático o dinámico","t":"Es otro eje: cuándo se revisan los tipos, al compilar o al ejecutar."}],"callout":"Consejo para empezar: aprende a convertir tipos a mano (int(), str(), parseInt()). Te servirá en cualquier lenguaje."}
+],
+"lenguajes":[
+{"n":"Python","mom":"Dinámico","fz":"Fuerte","cod":"x = \"5\" + 3","res":"TypeError: solo se puede unir str con str","ok":false,"nota":"Se niega a mezclar. Tú conviertes: int(\"5\") + 3 da 8."},
+{"n":"JavaScript","mom":"Dinámico","fz":"Débil","cod":"let x = \"5\" + 3;","res":"x = \"53\"  (sin ningún error)","ok":true,"nota":"Convierte el 3 a texto y los une. Con \"5\" - 3 daría 2: el mismo texto actúa distinto según el operador."},
+{"n":"PHP","mom":"Dinámico","fz":"Débil","cod":"$x = \"5\" + 3;","res":"$x = 8  (sin ningún error)","ok":true,"nota":"Convierte “5” a número. Para unir textos usa el punto: \"5\" . 3 da \"53\". Con declare(strict_types=1) los parámetros de funciones se vuelven más estrictos."},
+{"n":"Java","mom":"Estático","fz":"Fuerte","cod":"int x = \"5\" + 3;","res":"Error de compilación: String no se puede convertir a int","ok":false,"nota":"El error sale antes de ejecutar. Para convertir: Integer.parseInt(\"5\") + 3."},
+{"n":"C / C++","mom":"Estático","fz":"Intermedio","cod":"int x = 'A' + 3;","res":"x = 68  (el carácter 'A' vale 65)","ok":true,"nota":"Trata un carácter como número sin avisar. Con casts y punteros puedes saltarte aún más reglas."},
+{"n":"C#","mom":"Estático","fz":"Fuerte","cod":"int x = \"5\" + 3;","res":"Error de compilación: no se puede convertir string a int","ok":false,"nota":"Convierte tú con int.Parse(\"5\") + 3."},
+{"n":"Rust","mom":"Estático","fz":"Fuerte","cod":"let x: i32 = \"5\" + 3;","res":"Error de compilación: no se puede sumar un entero a &str","ok":false,"nota":"Muy estricto: ni siquiera pasa de i32 a i64 sin que lo pidas con as o into."},
+{"n":"Kotlin","mom":"Estático","fz":"Fuerte","cod":"val x: Int = \"5\" + 3","res":"Error de compilación: Type mismatch (String vs Int)","ok":false,"nota":"Convierte con \"5\".toInt() + 3."},
+{"n":"TypeScript","mom":"Estático","fz":"Fuerte","cod":"let x: number = \"5\" + 3;","res":"Error: el tipo string no se puede asignar a number","ok":false,"nota":"Añade tipos a JavaScript y los revisa al compilar. Luego se convierte en JS normal."}
+]}
+</script>
+
+<script>
+const D=JSON.parse(document.getElementById('datos').textContent);
+const S=D.diapositivas,L=D.lenguajes,$=id=>document.getElementById(id);
+const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+let i=0,sel=0,filtro='Todos';
+const tags=l=>`<span class="tag t-${l.mom}">${l.mom}</span><span class="tag t-${l.fz}">${l.fz}</span>`;
+function R(s){
+  let h='';
+  if(s.tipo==='portada')return `<h1>${s.titulo}</h1><p class="lead">${s.texto}</p><p>${s.pista}</p>`;
+  h+=`<h2>${s.titulo}</h2>`;
+  if(s.texto)h+=`<p class="lead">${s.texto}</p>`;
+  if(s.tipo==='texto'&&s.items)h+=`<div class="grid">${s.items.map(x=>`<div class="card ${x.c||''}"><h3>${x.h}</h3><p>${x.t}</p></div>`).join('')}</div>`;
+  if(s.tipo==='comparar')h+=`<div class="grid">${s.columnas.map(c=>`<div class="card ${c.c}"><h3>${c.titulo}</h3><p>${c.texto}</p><pre>${esc(c.codigo)}</pre><p>${c.nota}</p></div>`).join('')}</div>`;
+  if(s.tipo==='explorador')h+=`<div class="chips" role="group" aria-label="Lenguajes">${L.map((l,k)=>`<button data-k="${k}" aria-pressed="${k===sel}">${l.n}</button>`).join('')}</div><div class="card" id="ex"></div>`;
+  if(s.tipo==='tabla'){
+    h+=`<div class="chips">${['Todos','Fuerte','Intermedio','Débil'].map(f=>`<button data-f="${f}" aria-pressed="${f===filtro}">${f}</button>`).join('')}</div><div class="card tw"><table><tr><th>Lenguaje</th><th>¿Cuándo se revisan?</th><th>¿Cuán estricto?</th></tr>${L.filter(l=>filtro==='Todos'||l.fz===filtro).map(l=>`<tr><td><b>${l.n}</b></td><td><span class="tag t-${l.mom}">${l.mom}</span></td><td><span class="tag t-${l.fz}">${l.fz}</span></td></tr>`).join('')}</table></div>`;
+  }
+  if(s.callout)h+=`<div class="call">${s.callout}</div>`;
+  return h;
+}
+function ex(show){
+  const l=L[sel];
+  $('ex').innerHTML=`<h3>${l.n}</h3>${tags(l)}<pre>${esc(l.cod)}</pre><button id="run">▶ Ejecutar</button><div id="out" aria-live="polite"></div>`;
+  $('run').onclick=()=>{$('out').innerHTML=`<div class="res ${l.ok?'ok':'err'}">${esc(l.res)}</div><p style="margin-top:12px">${l.nota}</p>`};
+  if(show)$('run').click();
+}
+function draw(){
+  const s=S[i],m=$('slide');m.innerHTML=R(s);
+  m.style.animation='none';void m.offsetWidth;m.style.animation='';
+  if(s.tipo==='explorador'){ex();m.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>{sel=+b.dataset.k;m.querySelectorAll('[data-k]').forEach(x=>x.setAttribute('aria-pressed',x===b));ex(false)})}
+  if(s.tipo==='tabla')m.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{filtro=b.dataset.f;draw()});
+  $('pg').style.width=((i+1)/S.length*100)+'%';$('cnt').textContent=(i+1)+' / '+S.length;
+  $('prev').disabled=i===0;$('next').disabled=i===S.length-1;
+}
+function go(n){if(n>=0&&n<S.length){i=n;draw();window.scrollTo(0,0)}}
+$('prev').onclick=()=>go(i-1);$('next').onclick=()=>go(i+1);
+addEventListener('keydown',e=>{if(e.key==='ArrowRight')go(i+1);if(e.key==='ArrowLeft')go(i-1)});
+const root=document.documentElement;
+function tema(t){root.dataset.theme=t;$('th').textContent=t==='dark'?'☀️ Día':'🌙 Noche';try{localStorage.setItem('tema',t)}catch(e){}}
+let t0=null;try{t0=localStorage.getItem('tema')}catch(e){}
+tema(t0||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light'));
+$('th').onclick=()=>tema(root.dataset.theme==='dark'?'light':'dark');
+draw();
+</script>
+</body>
+</html>
