@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Evaluación del refuerzo educativo de tarde</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=Literata:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#edf1f7;--panel:#fff;--ink:#17203d;--mute:#5a6585;--line:#d3daea;--acc:#3a4fd6;--ok:#1f8a5b;--warn:#c98a00;--bad:#c2433b;--gray:#b6bed3;
+--hd:'Bricolage Grotesque',system-ui,sans-serif;--bd:'Literata',Georgia,serif;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#111628;--panel:#1b2340;--ink:#eef1fb;--mute:#a3adcc;--line:#2e3960;--acc:#f2c94c;--ok:#4fd39a;--warn:#f2c94c;--bad:#ff7a70;--gray:#46527c;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#111628;--panel:#1b2340;--ink:#eef1fb;--mute:#a3adcc;--line:#2e3960;--acc:#f2c94c;--ok:#4fd39a;--warn:#f2c94c;--bad:#ff7a70;--gray:#46527c;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font:18px/1.55 var(--bd);display:flex;flex-direction:column;transition:background .3s}
+header,footer{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 20px;font-family:var(--hd)}
+header b{font-weight:700}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.ic{border:1px solid var(--line);background:var(--panel);border-radius:20px;padding:6px 14px;font-family:var(--hd);font-weight:500}
+.bar{height:4px;background:var(--line)}.bar i{display:block;height:100%;background:var(--acc);width:0;transition:width .35s}
+main{flex:1;overflow-y:auto;padding:20px}
+section{max-width:960px;margin:0 auto;animation:in .35s}
+@keyframes in{from{opacity:0;transform:translateX(18px)}}
+@media (prefers-reduced-motion:reduce){section{animation:none}.bar i{transition:none}}
+h1,h2,h3{font-family:var(--hd);line-height:1.1;margin:0 0 .5em}
+h1{font-size:clamp(2.2rem,6vw,4rem);font-weight:800}h2{font-size:clamp(1.6rem,4vw,2.5rem);font-weight:800}h3{font-size:1.15rem}
+p{max-width:68ch;margin:.4em 0 .8em}.mute{color:var(--mute)}
+.grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));margin:18px 0}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px}
+.big{font:800 2.6rem/1 var(--hd);color:var(--acc)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}
+.chip{border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:8px 12px;font-family:var(--hd);font-weight:500}
+.chip[aria-pressed=true],.chip.on{background:var(--acc);color:var(--bg);border-color:var(--acc)}
+.dots{display:grid;grid-template-columns:repeat(10,1fr);gap:8px;max-width:560px;margin:16px 0}
+.dot{aspect-ratio:1;border-radius:50%;transition:opacity .25s,transform .25s}
+.dots.f .dot{opacity:.15}.dots.f .dot.hl{opacity:1;transform:scale(1.12)}
+.c-m{background:var(--ok)}.c-s{background:var(--warn)}.c-i{background:var(--bad)}.c-a{background:var(--gray)}
+.track{position:relative;height:44px;background:var(--line);border-radius:8px;margin:34px 0 12px}
+.fill{height:100%;background:var(--acc);border-radius:8px;transition:width .5s;display:flex;align-items:center;justify-content:flex-end;padding-right:10px;font:800 1.1rem var(--hd);color:var(--bg)}
+.mark{position:absolute;top:-22px;bottom:-6px;width:3px;background:var(--bad)}.mark span{position:absolute;top:-4px;left:6px;font:700 .85rem var(--hd);color:var(--bad);white-space:nowrap}
+.acc{width:100%;text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 16px;margin-bottom:10px}
+.acc strong{font-family:var(--hd);display:block}.acc .d{display:none;margin-top:8px;color:var(--mute)}.acc[aria-expanded=true]{border-color:var(--acc)}.acc[aria-expanded=true] .d{display:block}
+input[type=range]{width:100%;accent-color:var(--acc)}
+.chk{display:flex;gap:10px;align-items:flex-start;padding:8px 0;cursor:pointer}.chk input{margin-top:.45em;accent-color:var(--ok);width:18px;height:18px}
+.speech{background:var(--panel);border-left:4px solid var(--acc);padding:14px 18px;border-radius:0 10px 10px 0;max-height:38vh;overflow:auto}
+footer .nav{display:flex;gap:8px}
+@media (max-width:560px){body{font-size:16px}header span{display:none}}
+</style>
+</head>
+<body>
+<header><b id="ttl"></b><span class="mute" id="cnt"></span><button class="ic" id="theme" aria-label="Cambiar entre modo día y noche"></button></header>
+<div class="bar"><i id="prog"></i></div>
+<main id="stage" tabindex="-1"></main>
+<footer><button class="ic" id="prev">Anterior</button><div id="dotsNav" class="mute"></div><button class="ic" id="next">Siguiente</button></footer>
+
+<script type="application/json" id="datos">
+{"caso":{"nombre":"Caso C: Refuerzo educativo de tarde","tipo":"Evaluación de programa educativo","contexto":{"organizacion":"Asociación de apoyo escolar","financiacion":"Subvención municipal","duracion":"8 semanas","plazas":40,"objetivo":"Evaluar los resultados para decidir si renovar el programa"}},
+"objetivo_programa":{"asistencia_minima":"6 de 8 sesiones","mejora_esperada":"Mejorar en la planificación semanal","objetivo_porcentual":70,"poblacion_referencia":40,"personas_necesarias_para_cumplir_objetivo":28,"criterio":"Al menos el 70% de los inscritos debe cumplir ambos requisitos"},
+"evidencias":{"inscritos":40,"asistencia_suficiente":32,"asistencia_insuficiente":8,"registros_completos":23,"registros_incompletos_con_asistencia_suficiente":9,"personas_que_mejoraron":20,"horas_voluntarias":36,"gasto_registrado_euros":2400,"horas_voluntarias_incluidas_en_presupuesto":false},
+"resultados_calculados":{"porcentaje_asistencia_suficiente":80,"porcentaje_mejora_sobre_registros_completos":86.96,"porcentaje_mejora_sobre_total_inscritos":50,"porcentaje_mejora_confirmada_sobre_asistencia_suficiente":62.5,"objetivo_70_por_ciento_cumplido":"No se puede confirmar","interpretacion":"Los resultados son positivos entre las personas evaluadas, pero no hay datos completos de toda la población inscrita."},
+"problemas_detectados":[{"problema":"Datos incompletos","detalle":"9 personas con asistencia suficiente no tienen una de las mediciones.","consecuencia":"No se puede determinar si mejoraron."},{"problema":"Posible sesgo de selección","detalle":"El 87% se calcula solo sobre las 23 personas con datos completos.","consecuencia":"El porcentaje puede no representar a los 40 inscritos."},{"problema":"Eficacia no demostrada","detalle":"No existe información de un grupo de comparación.","consecuencia":"No se puede atribuir directamente la mejora al programa."},{"problema":"Costes incompletos","detalle":"Las 36 horas voluntarias no están monetizadas.","consecuencia":"El coste real de los recursos empleados puede ser superior a los 2400 euros."},{"problema":"Medición poco documentada","detalle":"No se especifica suficientemente cómo se mide la planificación semanal ni la consistencia de las pruebas.","consecuencia":"La validez y fiabilidad de los resultados no están completamente demostradas."}],
+"evaluacion":{"validez":"Limitada por los datos incompletos y la falta de información suficiente sobre el instrumento de medición.","fiabilidad":"No se puede confirmar que las mediciones sean consistentes.","etica":"Debe comunicarse el 87% con transparencia y sin presentarlo como representativo de todos los inscritos.","viabilidad":"El programa parece realizable, pero deben contabilizarse las horas voluntarias y otros recursos."},
+"decision_propuesta":{"recomendacion":"Renovar el programa con mejoras","justificacion":"20 de las 23 personas evaluadas mejoraron, lo que supone un resultado prometedor.","condiciones":["Mejorar el seguimiento de asistencia.","Completar las mediciones iniciales y finales.","Investigar los motivos de la falta de asistencia.","Contabilizar las horas voluntarias como recurso.","Mejorar la metodología de evaluación."]},
+"datos_pendientes":["Completar las mediciones de las 9 personas con registros incompletos.","Investigar por qué 8 personas no alcanzaron la asistencia mínima.","Documentar el método de evaluación de la planificación semanal.","Calcular el coste real incluyendo el trabajo voluntario."],
+"conclusion":"El programa presenta resultados prometedores, ya que el 87% de las personas evaluadas mejoró en la planificación semanal. Sin embargo, este porcentaje se basa únicamente en 23 personas de las 40 inscritas, por lo que no se puede confirmar el cumplimiento del objetivo del 70%. Se recomienda renovar el programa mejorando la recogida de datos y contabilizando todos los recursos utilizados.",
+"defensa_oral":{"duracion":"2 minutos","texto":"Nuestro propósito es evaluar si el programa de refuerzo educativo de tarde ha cumplido su objetivo de mejorar la planificación semanal de los participantes y si merece la pena renovarlo. La evidencia disponible es positiva, pero limitada. De las 23 personas que tienen una medición inicial y final, 20 mejoraron, lo que equivale aproximadamente al 87%. Sin embargo, este porcentaje solo corresponde a las personas con datos completos, no al total de inscritos. De las 40 personas inscritas, 32 alcanzaron la asistencia mínima, mientras que 8 no lo hicieron. Además, a 9 personas que sí asistieron suficientemente les falta una medición. Por tanto, no podemos asegurar que el objetivo de que al menos el 70% de los inscritos cumpliese ambos requisitos se haya alcanzado. Nuestra decisión provisional es recomendar la renovación del programa, porque los resultados de las personas evaluadas son prometedores. No obstante, proponemos mejorar el seguimiento de la asistencia y asegurar que todas las personas participantes tengan una evaluación inicial y final. Así podremos hacer una evaluación más fiable y decidir la próxima renovación con evidencias más completas."}}
+</script>
+
+<script>
+const D=JSON.parse(document.getElementById('datos').textContent);
+const E=D.evidencias,O=D.objetivo_programa,R=D.resultados_calculados,$=s=>document.querySelector(s);
+const pct=n=>(Math.round(n*10)/10).toString().replace('.',',')+'%';
+// Tema día/noche
+const root=document.documentElement,tb=$('#theme');
+function setTheme(t){root.dataset.theme=t;tb.textContent=t==='dark'?'☀ Modo día':'☾ Modo noche';try{localStorage.setItem('tema',t)}catch(e){}}
+let saved=null;try{saved=localStorage.getItem('tema')}catch(e){}
+setTheme(saved||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light'));
+tb.onclick=()=>setTheme(root.dataset.theme==='dark'?'light':'dark');
+
+const sinMejora=E.registros_completos-E.personas_que_mejoraron;
+const slides=[
+()=>`<h1>${D.caso.nombre}</h1><p class="mute">${D.caso.tipo} · ${D.caso.contexto.organizacion}</p>
+<div class="grid"><div class="card"><div class="big">${D.caso.contexto.plazas}</div>plazas</div><div class="card"><div class="big">8</div>semanas de programa</div><div class="card"><div class="big">1</div>decisión: ¿renovamos?</div></div>
+<p>${D.caso.contexto.objetivo}. Financia: ${D.caso.contexto.financiacion.toLowerCase()}.</p><p class="mute">Usa las flechas del teclado o los botones para avanzar.</p>`,
+
+()=>`<h2>¿Qué tenía que conseguir el programa?</h2><p>${O.criterio}.</p>
+<div class="grid"><div class="card"><h3>Requisito 1: asistir</h3><div class="big">${O.asistencia_minima}</div>sesiones como mínimo</div><div class="card"><h3>Requisito 2: mejorar</h3><div class="big">↑</div>${O.mejora_esperada}</div><div class="card"><h3>Meta</h3><div class="big">${O.personas_necesarias_para_cumplir_objetivo} de ${O.poblacion_referencia}</div>personas (${O.objetivo_porcentual}%)</div></div>`,
+
+()=>`<h2>Las 40 personas inscritas</h2><p>Cada círculo es una persona. Pulsa un grupo para resaltarlo.</p>
+<div class="chips" id="leg"></div><div class="dots" id="dots"></div><p id="dtxt" class="mute"></p>`,
+
+()=>`<h2>¿Qué porcentaje es el “bueno”?</h2><p>Las mismas 20 personas que mejoraron dan resultados distintos según con quién las compares. Elige la base.</p>
+<div class="chips" id="bases"></div><div class="track"><div class="fill" id="fill"></div><div class="mark" style="left:${O.objetivo_porcentual}%"><span>Meta ${O.objetivo_porcentual}%</span></div></div><div class="card" id="bt"></div>`,
+
+()=>`<h2>Cinco problemas que debemos reconocer</h2><p>Pulsa cada uno para ver el detalle.</p>${D.problemas_detectados.map((p,i)=>`<button class="acc" aria-expanded="false" data-i="${i}"><strong>${p.problema}</strong><div class="d">${p.detalle}<br><b>Consecuencia:</b> ${p.consecuencia}</div></button>`).join('')}`,
+
+()=>`<h2>¿Es una buena evaluación?</h2><div class="chips" id="ev">${Object.keys(D.evaluacion).map((k,i)=>`<button class="chip" aria-pressed="${i==0}" data-k="${k}">${k[0].toUpperCase()+k.slice(1)}</button>`).join('')}</div><div class="card"><p id="evt" style="margin:0"></p></div>`,
+
+()=>`<h2>¿Cuánto cuesta de verdad?</h2><p>Se registraron ${E.gasto_registrado_euros} €, pero las ${E.horas_voluntarias} horas voluntarias no entran en el presupuesto. Prueba con un valor por hora.</p>
+<label for="rng"><b id="hv"></b></label><input type="range" id="rng" min="0" max="25" value="10">
+<div class="grid"><div class="card"><div class="big" id="ct"></div>coste real estimado</div><div class="card"><div class="big" id="cp"></div>por persona inscrita</div><div class="card"><div class="big" id="cm"></div>por persona que mejoró (evaluadas)</div></div>`,
+
+()=>`<h2>${D.decision_propuesta.recomendacion}</h2><p>${D.decision_propuesta.justificacion}</p>
+<div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(280px,1fr))"><div class="card"><h3>Condiciones <span class="mute" id="cc"></span></h3>${D.decision_propuesta.condiciones.map((c,i)=>`<label class="chk"><input type="checkbox" class="cb">${c}</label>`).join('')}</div>
+<div class="card"><h3>Datos pendientes</h3>${D.datos_pendientes.map(c=>`<label class="chk"><input type="checkbox">${c}</label>`).join('')}</div></div>`,
+
+()=>`<h2>Defensa oral · ${D.defensa_oral.duracion}</h2><div class="chips"><button class="chip" id="tm">Empezar cronómetro 2:00</button></div><div class="speech"><p style="margin:0">${D.defensa_oral.texto}</p></div><h3 style="margin-top:20px">Conclusión</h3><p>${D.conclusion}</p>`
+];
+
+const inits=[null,null,()=>{
+ const g=[['m','Mejoraron',E.personas_que_mejoraron,'Mejoraron: 20 personas con datos completos que progresaron.'],['s','Completos sin mejora',sinMejora,'Tienen datos completos pero no mejoraron: 3 personas.'],['i','Sin una medición',E.registros_incompletos_con_asistencia_suficiente,'Asistieron lo suficiente pero falta una medición: 9 personas. No sabemos si mejoraron.'],['a','Asistencia insuficiente',E.asistencia_insuficiente,'No llegaron a 6 sesiones: 8 personas.']];
+ $('#dots').innerHTML=g.map(x=>Array.from({length:x[2]},()=>`<div class="dot c-${x[0]}" data-g="${x[0]}"></div>`).join('')).join('');
+ $('#leg').innerHTML=g.map(x=>`<button class="chip" data-g="${x[0]}" aria-pressed="false"><span class="c-${x[0]}" style="display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px"></span>${x[1]} (${x[2]})</button>`).join('');
+ $('#dtxt').textContent='Resultado: 20 de 40 mejoraron con certeza, y 9 personas quedan en la duda.';
+ $('#leg').onclick=e=>{const b=e.target.closest('button');if(!b)return;const on=b.getAttribute('aria-pressed')!=='true';document.querySelectorAll('#leg button').forEach(x=>x.setAttribute('aria-pressed','false'));b.setAttribute('aria-pressed',on);
+  $('#dots').classList.toggle('f',on);document.querySelectorAll('.dot').forEach(d=>d.classList.toggle('hl',on&&d.dataset.g===b.dataset.g));
+  $('#dtxt').textContent=on?g.find(x=>x[0]===b.dataset.g)[3]:'';};
+},()=>{
+ const b=[['Sobre 23 con datos completos',E.personas_que_mejoraron/E.registros_completos*100,'Parece superar la meta, pero deja fuera a 17 personas. Puede estar sesgado.'],['Sobre 32 que asistieron',E.personas_que_mejoraron/E.asistencia_suficiente*100,'Si las 9 personas sin datos no hubieran mejorado, solo llegaríamos aquí.'],['Sobre 40 inscritos',E.personas_que_mejoraron/E.inscritos*100,'Es el criterio del programa: toda la población inscrita, con ambos requisitos.']];
+ $('#bases').innerHTML=b.map((x,i)=>`<button class="chip" data-i="${i}" aria-pressed="false">${x[0]}</button>`).join('');
+ const sel=i=>{document.querySelectorAll('#bases button').forEach((c,j)=>c.setAttribute('aria-pressed',i===j));$('#fill').style.width=b[i][1]+'%';$('#fill').textContent=pct(b[i][1]);$('#bt').innerHTML=`<b>${pct(b[i][1])}</b>. ${b[i][2]}<br><span class="mute">Veredicto del objetivo del 70%: ${R.objetivo_70_por_ciento_cumplido.toLowerCase()}.</span>`};
+ $('#bases').onclick=e=>{const c=e.target.closest('button');if(c)sel(+c.dataset.i)};sel(0);
+},()=>{document.querySelectorAll('.acc').forEach(a=>a.onclick=()=>a.setAttribute('aria-expanded',a.getAttribute('aria-expanded')!=='true'))
+},()=>{
+ const show=k=>{document.querySelectorAll('#ev button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.k===k));$('#evt').textContent=D.evaluacion[k]};
+ $('#ev').onclick=e=>{const b=e.target.closest('button');if(b)show(b.dataset.k)};show('validez');
+},()=>{
+ const f=()=>{const h=+$('#rng').value,t=E.gasto_registrado_euros+E.horas_voluntarias*h,n=v=>Math.round(v).toLocaleString('es-ES')+' €';
+  $('#hv').textContent=`Valor de la hora voluntaria: ${h} €`;$('#ct').textContent=n(t);$('#cp').textContent=n(t/E.inscritos);$('#cm').textContent=n(t/E.personas_que_mejoraron)};
+ $('#rng').oninput=f;f();
+},()=>{
+ const u=()=>{const c=document.querySelectorAll('.cb'),n=[...c].filter(x=>x.checked).length;$('#cc').textContent=`(${n}/${c.length})`};
+ document.querySelectorAll('.cb').forEach(x=>x.onchange=u);u();
+},()=>{
+ let t=null;$('#tm').onclick=()=>{if(t){clearInterval(t);t=null;$('#tm').textContent='Empezar cronómetro 2:00';return}
+  let s=120;$('#tm').textContent='Quedan 2:00 (pulsa para parar)';t=setInterval(()=>{s--;const m=Math.floor(s/60),r=String(s%60).padStart(2,'0');$('#tm').textContent=s>0?`Quedan ${m}:${r} (pulsa para parar)`:'Tiempo agotado';if(s<=0){clearInterval(t);t=null}},1000)};
+}];
+
+let cur=0;
+function go(i){cur=Math.max(0,Math.min(slides.length-1,i));$('#stage').innerHTML=`<section>${slides[cur]()}</section>`;if(inits[cur])inits[cur]();
+ $('#ttl').textContent='Refuerzo educativo de tarde';$('#cnt').textContent=`${cur+1} / ${slides.length}`;$('#prog').style.width=(cur+1)/slides.length*100+'%';
+ $('#prev').disabled=cur===0;$('#next').disabled=cur===slides.length-1;$('#stage').scrollTop=0;
+ $('#dotsNav').textContent=`Diapositiva ${cur+1}`;try{history.replaceState(null,'','#d'+(cur+1))}catch(e){}}
+$('#prev').onclick=()=>go(cur-1);$('#next').onclick=()=>go(cur+1);
+addEventListener('keydown',e=>{if(e.target.tagName==='INPUT'&&e.target.type==='range')return;if(e.key==='ArrowRight')go(cur+1);if(e.key==='ArrowLeft')go(cur-1)});
+go(0);
+</script>
+</body>
+</html>
